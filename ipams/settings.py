@@ -18,9 +18,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY') or '6Ld-guEbAAAAANAgbmQI2Ph6knhKsOglaO
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DEBUG", "False").lower() == 'true'
 # DEBUG = True
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "localhost").split(" ")
 
-ALLOWED_HOSTS = ['26.34.129.27', '127.0.0.1', 'localhost', '192.168.203.205', 'windows-nginx', '*']
+
+
+ALLOWED_HOSTS = ['26.34.129.27', '127.0.0.1', 'localhost', '192.168.203.205', 'windows-nginx', '*','https://ipams-tqk5d.ondigitalocean.app/']
 AUTH_USER_MODEL = 'accounts.User'
 
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
