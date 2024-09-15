@@ -16,9 +16,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('SECRET_KEY') or '6Ld-guEbAAAAANAgbmQI2Ph6knhKsOglaOEEuyp3'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = os.environ.get("DEBUG", "False").lower() == 'true'
-DEBUG = True
-# ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
+DEBUG = os.environ.get("DEBUG", "False").lower() == 'true'
+# DEBUG = True
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(" ")
 
 ALLOWED_HOSTS = ['26.34.129.27', '127.0.0.1', 'localhost', '192.168.203.205', 'windows-nginx', '*']
 AUTH_USER_MODEL = 'accounts.User'
