@@ -116,10 +116,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ipamsdjango',
-        'USER': 'root',
-        'PASSWORD': 'new_password',
+        'USER': 'narralink',  # Replace with your Azure MySQL username
+        'PASSWORD': 'July82001Cl@ro',  # Replace with your Azure MySQL password
         'PORT': '3306',
-        'HOST': 'localhost',
+        'HOST': 'ipamsdjango.mysql.database.azure.com',  # Your Azure MySQL server hostname
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
@@ -127,10 +127,10 @@ DATABASES = {
     'nalc': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'nalc_schema',
-        'USER': 'root',  # Replace with the appropriate username
-        'PASSWORD': 'new_password',  # Replace with the appropriate password
+        'USER': 'narralink',  # Replace with your Azure MySQL username
+        'PASSWORD': 'July82001Cl@ro',  # Replace with your Azure MySQL password
         'PORT': '3306',
-        'HOST': 'localhost',
+        'HOST': 'ipamsdjango.mysql.database.azure.com',  # Your Azure MySQL server hostname
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
@@ -138,7 +138,9 @@ DATABASES = {
 }
 
 
-#postgres://ipams:nW05hlSDwtdtexsCgl3iqOm4H76I0snF@dpg-cp6tm8fsc6pc73cn14ug-a.singapore-postgres.render.com/ipamsdjango_umjr
+
+
+# postgresql://ipamsdjango_4f6p_user:a29nUiaKTzMwPebps3QnW5m6NnvOCLp6@dpg-crj8gtlumphs73ctu1v0-a.singapore-postgres.render.com/ipamsdjango_4f6p
 
 # DATABASES = {
 #     'default': {
