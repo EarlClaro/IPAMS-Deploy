@@ -1,0 +1,20 @@
+{% load crispy_forms_tags %}
+{% load custom_tags %}
+<div class="row">
+	<div class="col-12">
+		<h5>Uploads</h5>
+	</div>
+</div>
+</hr>
+
+<div class="upload-card" style="height: 130px;">
+	<div class="row pt-3 justify-content-center">Uploads can only be edited through the File Management System, Click the button to open a new tab</div>
+	<div class="row justify-content-center mt-2"><a href="{% url 'file_management:attachments' record_id=record.pk %}" target="blank"><button type="button" class="btn base-btn base-bg-secondary">File Management System</button></a></div>
+</div>
+
+<div class="row" style="margin-top:220px;">
+	<div class="col-12 d-flex justify-content-end">
+		<button class="btn prevButtonListener base-btn base-bg-secondary" type="button">Prev</button>
+		<button data-toggle="modal" data-target="#record-submit-modal" type="button" class="btn base-btn base-bg-secondary ml-3" id="btn-confirm">Confirm</button>
+	</div>
+</div>

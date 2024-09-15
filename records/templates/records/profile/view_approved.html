@@ -1,0 +1,467 @@
+{% extends 'ipams/base.html' %}
+{% load crispy_forms_tags %}
+{% load custom_tags %}
+{% block footer %}
+<style>
+.tooltip-wrapper{
+    display: inline-block;
+}
+
+.accordion-btn {
+   position: relative;
+}
+.accordion-btn:before {
+   border-radius: 3px;
+   font-weight: bold;
+   font-size: 20px;
+   padding: 2px 10px;
+   color: black;
+   background-color: #febf0f;
+   position: absolute;
+   content: "+";
+   right: 35px;
+   top: 5px;
+}
+
+.accordion-btn[aria-expanded="true"]:before {
+   content: "-";
+      padding: 2px 12px;
+      right: 35px;
+}
+
+.empty-content {
+   position: relative;
+}
+
+.empty-content::before {
+    border-radius: 3px;
+    padding: 5px 10px;
+    color: white;
+    background-color: grey;
+    position: absolute;
+    content: "Empty";
+    right: 22px;
+    top: 5px;
+}
+
+hr{
+   border-top: 1px solid black;
+}
+
+.vertical-line-container{
+    border-left: 2px solid #808080;
+}
+</style>
+<script>
+    let isRemovable = false;
+    var record_id = getRecordId();
+    
+    function getRecordId() {
+        var currentUrl = window.location.href;
+    
+        // Define a regular expression pattern to match the record_id
+        var pattern = /\/record\/approved\/(\d+)/;
+    
+        // Use the regular expression to extract the record_id
+        var matches = currentUrl.match(pattern);
+    
+        if (matches && matches.length >= 2) {
+            var recordId = parseInt(matches[1]); // Convert the matched part to an integer
+            return recordId;
+        }
+        return null;
+    }
+    
+    function checkStatusClick(role){
+    recordId = getRecordId();
+    $.ajax({
+    headers: { "X-CSRFToken": '{{ csrf_token }}' },
+    type: "post",
+    data: { role: role, recordId: recordId },
+    url: "/records/user/getComment/",   
+    success: function(data) {
+        if (data && data.status) {
+            comments = "";
+            for(var i=0; i<data["date_created"].length; i++){
+                comments+='<div class="card" style="background-color:#dbdbdb; margin-bottom:10px;"><div class="card-body"><p class="card-text">'+data["comment"][i]+'</p><h6 class="card-subtitle mb-2 text-muted">'+data["date_created"][i]+'</h6></div></div>';
+            }
+            $("#checked-status-comment").html(comments);
+            $("#checked-status-title").html(data.status);
+            $("#checked-status-checkedby").val(data.username);
+        }
+        else {
+            $("#checked-status-title").html('');
+            $("#checked-status-checkedby").val('');
+            $("#checked-status-comment").html('<div class="text-danger">Record has not been evaluated by user</div>');
+
+        }
+        $("#checked-status-modal").modal("show");
+    },
+    error: function(xhr, status, error) {
+        console.log("Error:", error);
+    }
+});
+}
+
+    
+    $(document).ready(function() {
+        $("#doc-tag-receipt").hide();
+        var record_id = getRecordId();
+    
+    $("#btn-approve").on("click", function(){
+        let comment = $("#field-comment").val();
+        console.log(comment);
+        $("#evaluationReceipt").val(comment);
+        $("#doc-tag-receipt").show();
+    
+        $('#ip-receipt').prop('checked', false);
+        $('#commercialization-receipt').prop('checked', false);
+        $('#community-ext-receipt').prop('checked', false);
+    
+        if ($('#ip').is(":checked")){
+            console.log('ip')
+            $('#ip-receipt').prop('checked', true);
+        }
+    
+        if ($('#commercialization').is(":checked")){
+            console.log('commercialization')
+            $('#commercialization-receipt').prop('checked', true);
+        }
+        if ($('#community-ext').is(":checked")){
+            console.log('community-ext')
+            $('#community-ext-receipt').prop('checked', true);
+        }
+    
+        $("#modal-title").html("Approve");
+        $("#status").val("approved");
+        $("#assessment-modal").modal("show");
+    });
+    
+    $("#btn-close").on("click", function(){
+        $("#doc-tag-receipt").hide();
+        $("#assessment-modal").modal("hide");
+    });
+    
+    $("#btn-decline").on("click", function(){
+        $("#modal-title").html("Decline");
+        $("#status").val("declined");
+        $("#assessment-modal").modal("show");
+    });
+    
+    $("#btn-remove").on("click", function(){
+        Swal.fire({
+          title: 'Reason for deletion.',
+          text: "This action is irreversible! A request will be sent to an admin for approval. Please state the reason for deleting this record.",
+          input: 'textarea',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Submit Reason'
+        }).then((result) => {
+          if (result.value) {
+            $.ajax({
+                "headers": { "X-CSRFToken": '{{ csrf_token }}' },
+                "type": "post",
+                "data": {
+                    'deleteRecord': true,
+                    'reason': result.value,
+                    'record_id': '{{ record.pk }}',
+                },
+                "url": '/record/evaluation/removeRecord/',
+                "success": function(data){
+                },
+                "error": function(data){
+                    alert("error");
+                }
+            });
+            Swal.fire(
+                "Request Sent!",
+                "Record would be deleted automatically after the approval of an admin.",
+                'success'
+            ).then((result) => {
+                window.location.replace("{% url 'records-pending' %}");
+            });
+          }else{
+            Swal.fire(
+                'Request is not sent!',
+                'Reason must be provided. Please provide one.',
+                'error'
+            )
+          }
+        })
+    });
+    });
+    
+    $(function(){
+        $("#id_comment").prop('required',true);
+        if($("#id_comment") == '') {
+            $("#btn-assessment-save").show();
+        }
+    });
+    
+    $("#btn-assessment-save").on("click", function(event) {
+        event.preventDefault();
+        let ip = false;
+        let commercialization = false;
+        let community_ext = false
+        if ($('#ip').is(":checked")){
+                ip = true;
+        }
+        if ($('#commercialization').is(":checked")){
+            commercialization = true;
+        }
+        if ($('#community-ext').is(":checked")){
+                community_ext = true;
+        }
+    
+        var formData = new FormData($("#checked-record-form")[0]);
+        formData.append('record_id', record_id);
+        formData.append('status', $("#status").val())
+        formData.append('ip', ip);
+        formData.append('commercialization', commercialization);
+        formData.append('community_ext', community_ext);
+        $('#loadIndicator').html('<div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>');
+        $("#btn-assessment-save").hide();
+    
+        $.ajax({
+            headers: { "X-CSRFToken": $("input[name=csrfmiddlewaretoken]").val() },
+            data: formData,
+            dataType: 'json',
+            type: 'post',
+            url: '/record/evaluation/evaluateRecord/',
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                console.log('success');
+                sessionStorage.setItem('alertStatus', data.status);
+                sessionStorage.setItem('alertMessage', data.messege);
+                if(data.checked_record_status == 'approved'){
+                    window.location.href = '/records/approved/';
+                }
+                else{
+                    window.location.href = '/records/declined/';
+                }
+            },
+            error: function(data) {
+                console.log('error');
+                sessionStorage.setItem('alertStatus', data.status);
+                sessionStorage.setItem('alertMessage', data.messege);
+                window.location.href = '/records/approved/';
+            }
+        });
+    });
+    
+    $("#btn-uploads-back").on("click", function(){
+        $("#uploads").show();
+        $("#uploads-title").hide();
+    });
+    </script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row ml-2">
+        <div class="col-4">
+            <div class="text-primary text-bold h2">Approved Record</div>
+        </div>
+    </div>
+    <div class="row ml-4 mt-2">
+        <div class="text-primary text-bold h5">{{ record.record_type }} |&nbsp</div>
+        <div class="h5 text-bold"> " {{ record.title }} "</div>
+    </div>
+    <hr>
+    <div id="record-info-container">
+        <div class="row ml-4">
+            <div class="col-6">
+                <div class="row mb-2"><div class="text-bold">Authors:&nbsp</div>{% for author in record.author_set.all %} {{ author.name }} {% if not forloop.last %},&nbsp;{% endif %} {% endfor %}</div>
+                <div class="row mb-2"><div class="text-bold">Year:&nbsp </div>{{ record.year_accomplished }}&nbsp - &nbsp {{ record.year_completed }}</div>
+                <div class="row mb-2"><div class="text-bold">Adviser:&nbsp</div>{{ record.adviser }}</div>
+                <div class="row mb-2"><div class="text-bold">Representative:&nbsp</div>{{ record.representative }}</div>
+                <div class="row mb-2"><div class="text-bold">Date Submitted:&nbsp</div>{{ record.date_created }}</div>
+            </div>
+            <div class="col-6">
+                <div class="mr-3 float-right">
+                    {% if rdco_status.status == 'Approved' %}
+                    <div class="text-bold">Evaluation Status: </div><span class="badge badge-success">Published</span>
+                    {% elif  adviser_status.status == 'Declined' or ktto_status.status == 'Declined' or rdco_status.status == 'Declined' %}
+                    <div class="text-bold">Evaluation Status: </div><span class="badge badge-danger">Removable</span>
+                    {% else %}
+                    <div class="text-bold">Evaluation Status: </div><span class="badge badge-secondary">In Progress..</span>
+                    {% endif %}
+                    <div class="doc-tags mt-1" id="doc-tags">
+                        <div class="text-bold">Record Tags:&nbsp</div>
+                        <div class="form-check mt-1 mb-1">
+                            <input type="checkbox" class="form-check-input " id="ip" disabled{% if record.is_ip %} checked {% endif %}>
+                            <label class="form-check-label" for="ip">Intellectual Property</label>
+                        </div>
+                        <div class="form-check mb-1">
+                            <input type="checkbox" class="form-check-input" id="commercialization" disabled {% if record.for_commercialization %} checked {% endif %}>
+                            <label class="form-check-label" for="commercialization">For Commercialization</label>
+                        </div>
+                        <div class="form-check mb-1">
+                            <input type="checkbox" class="form-check-input" id="community-ext" disabled {% if record.community_extension %} checked {% endif %}>
+                            <label class="form-check-label" for="community-ext">Community Extension</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="abstract-info ml-4">
+            <div class="text-bold mb-1">Abstract:</div>
+            {{ record.abstract|safe }}
+        </div>
+    </div>
+    <iframe id="record-iframe" width="100%" height="800px" src="{% url 'view-record-file' record_id=record.pk %}" style="margin-top:20px; margin-bottom: 20px;"></iframe>
+    <hr>
+        <div class="col-12 mt-5 mb-2 text-bold text-primary text-center h5">Record Overview</div>
+        <div id="record-accordion-group" style="color: black;" >
+
+        <!--------------------------------------------- AUTHORS AND CATEGORIES ----------------------------------------------->
+
+        <button type="button" class="btn btn-block mb-2 text-left accordion-btn" data-toggle="collapse" data-target="#authors-category-accordion"><h5 class="text-primary">Authors and Categories</h5></button>
+        <div id="authors-category-accordion" class="collapse ml-2">
+            <div class="vertical-line-container">
+                {% include 'records/view_record/authors_and_categories.html' %}
+            </div>
+        </div>
+        <hr>
+
+        <!--------------------------------------------- CONFERENCE --------------------------------------------------------->
+
+        {% if conference == 'true' %}
+        <button type="button" class="btn btn-block mb-2 text-left accordion-btn" data-toggle="collapse" data-target="#conference-accordion" ><h5 class="text-primary">Conference</h5></button>
+        {% else %}
+        <button type="button" class="btn btn-block mb-2 text-left empty-content" data-toggle="collapse"><h5 style="color:#888888" >Conference</h5></button>
+        {% endif %}
+        <div id="conference-accordion" class="collapse ml-2">
+            {% include 'records/view_record/conference.html' %}
+        </div>
+        <hr>
+
+        <!--------------------------------------------- PUBLICATION ---------------------------------------------------------->
+
+        {% if publication == 'true' %}
+        <button type="button" class="btn btn-block mb-2 text-left accordion-btn" data-toggle="collapse" data-target="#publication-accordion"><h5 class="text-primary">Publication</h5></button>
+        {% else %}
+        <button type="button" class="btn btn-block mb-2 text-left empty-content" data-toggle="collapse"><h5 class="label" style="color:#888888" >Publication</h5></button>
+        {% endif %}
+        <div id="publication-accordion" class="collapse ml-2">
+                <div class="vertical-line-container">
+                    {% include 'records/view_record/publication.html' %}
+                </div>
+        </div>
+        <hr style="border-top: 1px solid black;">
+
+      <!------------------------------------------------- BUDGET ----------------------------------------------------------->
+
+        {% if budget == 'true' %}
+        <button type="button" class="btn btn-block mb-2 text-left accordion-btn" data-toggle="collapse" data-target="#budget-accordion" ><h5 class="text-primary">Budget</h5></button>
+        {% else %}
+        <button type="button" class="btn btn-block mb-2 text-left empty-content" data-toggle="collapse"><h5 class="label" style="color:grey" >Budget</h5></button>
+        {% endif %}
+        <div id="budget-accordion" class="collapse">
+        {% include 'records/view_record/budget.html' %}
+
+        </div>
+        <hr style="border-top: 1px solid black;">
+
+      <!------------------------------------------------ COLLABORATION ----------------------------------------------------->
+
+        {% if collaboration == 'true' %}
+        <button type="button" class="btn btn-block mb-2 text-left accordion-btn" data-toggle="collapse" data-target="#collaboration-accordion"><h5 class="text-primary">Collaboration</h5></button>
+        {% else %}
+        <button type="button" class="btn btn-block mb-2 text-left empty-content" data-toggle="collapse" style="background-color: transparent"><h5 style="color:grey" >Collaboration</h5></button>
+        {% endif %}      
+        <div id="collaboration-accordion" class="collapse" style="margin-left: 40x; margin-top: 20px">
+        {% include 'records/view_record/collaboration.html' %}
+        </div>
+        <hr style="border-top: 1px solid black;">
+      
+     <!------------------------------------------------ RECORD EVALUATIONS ----------------------------------------------------->
+        <button type="button" class="btn btn-block mb-2 text-left accordion-btn" data-toggle="collapse" data-target="#record-evaluation-accordion" style="background-color: transparent"><h5 class="text-primary">Recorded Evaluations</h5></button>
+        <div id="record-evaluation-accordion" class="collapse">
+        <div class="row mb-1">
+            <div class="col-md-12">
+                <table class="table table-striped mx-auto" style="text-align: center; padding: 2px 0;">
+                    <tr>
+                        <th scope="col">Checked By</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">View Comment</th>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:middle;">Adviser</td>
+                        {% if adviser_status.status == 'Pending' %}
+                            <td style="vertical-align:middle;"><span class="badge badge-secondary">{{ adviser_status.status }}</span></td>
+                        {% elif adviser_status.status == 'Approved' %}
+                            <td style="vertical-align:middle;"><span class="badge badge-success">{{ adviser_status.status }}</span></td>
+                        {% elif adviser_status.status == 'Declined' %}  
+                            <td style="vertical-align:middle;"><span class="badge badge-danger">{{ adviser_status.status }}</span></td>
+                        {% endif %}    
+                        <td><button type="button" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('adviser');">View Comment</button></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:middle;">KTTO / TBI</td>
+                        {% if ktto_status.status == 'Pending' %}
+                            <td style="vertical-align:middle;"><span class="badge badge-secondary">{{ ktto_status.status }}</span></td>
+                        {% elif ktto_status.status == 'Approved' %}
+                            <td style="vertical-align:middle;"><span class="badge badge-success">{{ ktto_status.status }}</span></td>
+                        {% elif ktto_status.status == 'Declined' %}  
+                            <td style="vertical-align:middle;"><span class="badge badge-danger">{{ ktto_status.status }}</span></td>
+                        {% endif %} 
+                        <td><button type="button" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('ktto');">View Comment</button></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:middle;">RDCO</td>
+                        {% if rdco_status.status == 'Pending' %}
+                            <td style="vertical-align:middle;"><span class="badge badge-secondary">{{ rdco_status.status }}</span></td>
+                        {% elif rdco_status.status == 'Approved' %}
+                            <td style="vertical-align:middle;"><span class="badge badge-success">{{ rdco_status.status }}</span></td>
+                        {% elif rdco_status.status == 'Declined' %}  
+                            <td style="vertical-align:middle;"><span class="badge badge-danger">{{ rdco_status.status }}</span></td>
+                        {% endif %}
+                        <td><button type="button" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('rdco');">View Comment</button></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <hr>
+    </div> 
+</div>
+
+<!-- -------------------------------- Checked Record Comment Modal--------------------------------------------- -->
+<div class="modal fade" id="checked-status-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header base-bg-secondary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" >
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row ml-2">
+                    <h5>Evaluation - <span class="modal-title" id="checked-status-title"></span></h5>
+                    <hr>
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="checked-status-checkedby">Checked By: </label><input id="checked-status-checkedby" type="text" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label for="checked-status-comment">Comments: </label>
+                            <div id="checked-status-comment" class="form-group"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" >Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

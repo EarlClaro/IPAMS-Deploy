@@ -1,0 +1,53 @@
+<div class="publishing-data ml-4">
+    <div class="row">
+        <div class="col-2">
+            <div class="label">Title:</div>
+        </div>
+        <div class="col-3">
+            <input type="text" class="form-control" value="{{ record.publication.name }}" readonly>
+        </div>
+    </div>
+    <div class="row mt-1">
+        <div class="col-2">
+            <div class="label">ISBN:</div>
+        </div>
+        <div class="col-3">
+            <input type="text" class="form-control" value="{{ record.publication.isbn }}" readonly>
+        </div>
+    </div>
+    <div class="row mt-1">
+        <div class="col-2">
+            <div class="label">ISSN:</div>
+        </div>
+        <div class="col-3">
+            <input type="text" class="form-control" value="{{ record.publication.issn }}" readonly>
+        </div>
+
+    </div>
+    <div class="row mt-1">
+        <div class="col-2">
+            <div class="label">ISI:</div>
+        </div>
+        <div class="col-3">
+            <input type="text" class="form-control" value="{{ record.publication.isi }}" readonly>
+        </div>
+    </div>
+    <div class="row mt-1">
+        <div class="col-2">
+            <div class="label">Level:</div>
+        </div>
+        <div class="col-3">
+                {% for publication_level in publication_levels %}
+                    {% if record.publication.publication_level.pk == publication_level.pk %}<input type="text" class="form-control" value="{{ publication_level.name }}" readonly>{% endif %}
+                {% endfor %}
+        </div>
+    </div>
+    <div class="row mt-1">
+        <div class="col-2">
+            <div class="label">Year Published:</div>
+        </div>
+        <div class="col-3">
+            <input type="text" class="form-control" value="{{ record.publication.year_published }}" readonly>
+        </div>
+    </div>
+</div>

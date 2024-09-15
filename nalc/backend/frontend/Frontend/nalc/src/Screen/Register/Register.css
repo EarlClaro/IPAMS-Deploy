@@ -1,0 +1,82 @@
+.container-fluid {
+    display: flex;
+    height: 100vh;
+  }
+  
+.title-r {
+    flex: 1;
+    background-color: #ffffff;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-r{
+    height: 300px; 
+    width: 300px; 
+}
+
+.title h1{
+    text-align: center;
+}
+
+
+.form {
+    margin: auto;
+    background-color: white;
+    text-align: center;
+    align-items: center;
+}
+
+.form p{
+    max-width:50%;
+    margin: auto;
+}
+
+.inputField{
+    margin: auto;
+}
+
+.haveAcc{
+    border: none;
+    background-color: rgb(210, 210, 210);
+    color: #841818;
+    text-align: center;
+    font-size: large;
+}
+
+.textReg{
+    border: none;
+    color: white;
+}
+
+
+.btn-register{
+    background-color: #841818;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 25px;
+    font-size: 25px;
+    margin: auto;
+    transition: background-color 0.3s ease;
+}
+
+.btn-register:hover{
+    background-color: #ad2d2d;
+
+}
+
+.big-space{
+    margin-bottom: 300px;
+}
+
+.head-color{
+    background-color: #841818;
+    padding: 10px;
+}
+
+.body-bg{
+    background-color: rgb(210, 210, 210);
+}

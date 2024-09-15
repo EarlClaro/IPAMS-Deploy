@@ -1,0 +1,78 @@
+{% extends 'ipams/base.html' %}
+
+{% block footer %}
+<style>
+    .header-title {
+        font-size: 42px;
+        font-weight: 200;
+    }
+
+</style>
+<script>
+    $(document).ready(function () {
+        // DataTables initialization without AJAX
+        $("#tbl-user-records").DataTable({
+            "deferRender": true,
+            "scrollX": true,
+            "responsive": true,
+            "columns": [
+                { "data": "file" },
+                { "data": "record" },
+                { "data": "date_uploaded" },
+                { "data": "version" },
+                { "data": "is_approved" },
+            ],
+            "order": [[0, "desc"]]
+        });
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div>
+        <div class="main-header base-bg-secondary bordered-radius-top">
+        </div>
+        <div class="main-content">
+            <div class="row mb-2">
+                <div class="col-12 h3">Approved Records</div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <table id="tbl-user-records" class="table table-striped table-bordered table-condensed" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Record</th>
+                                <th>Date Uploaded</th>
+                                <th>Version</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Add rows dynamically based on data -->
+                            {% for record_upload in record_uploads %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'file_management:download_record_file' record_upload.id %}" download="{{ record_upload.filename }}">{{ record_upload.filename }}</a>
+                                    </td>
+                                    <td>{{ record_upload.record }}</td>
+                                    <td>{{ record_upload.date_uploaded }}</td>
+                                    <td>{{ record_upload.version }}</td>
+                                    <td>
+                                        {% if record_upload.is_approved %}
+                                            <span class="badge badge-success">Approved</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Declined</span>
+                                        {% endif %}
+                                    </td>
+                                    </tr>
+                                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

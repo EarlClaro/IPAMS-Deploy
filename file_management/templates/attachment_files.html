@@ -1,0 +1,1253 @@
+
+{% load static %}
+{% load crispy_forms_tags %}
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>IPAMS</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <style type="text/css">
+
+        /* CSS */
+
+
+
+        #file-list {
+            list-style-type: none;
+        }
+
+        #file-list li {
+            margin: 5px 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            height: 100%;
+            width: 110px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            font-family: 'Helvetica Neue', sans-serif;
+            background-color: #222F38;
+            padding-top: 60px;
+            overflow-x: hidden;
+            border-right: 1px solid #000;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            font-size: 13px;
+            color: #ECF0F1; /* Light gray text color */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 15px 0;
+        }
+
+        .sidebar a:hover {
+            background-color: #34495E; /* Darker blue on hover */
+            color: #ECF0F1;
+        }
+
+        /* Center text */
+        .center-text {
+            text-align: center;
+        }
+
+        /* Icon styles */
+        .sidebar a i {
+            margin-bottom: 10px; /* Slightly more space between icon and text */
+            font-size: 28px;
+        }
+
+        .sidebar-divider-horizontal {
+        height: 1px;
+        width: 80%;
+        background-color: #ECF0F1; /* Light gray divider */
+        margin: 10px auto;
+        }
+
+        .search-bar {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            max-width: 1000px;
+            padding: 12px 20px;
+            border: 2px solid #FFFFFF;
+            border-radius: 25px;
+            font-size: 18px;
+        }
+
+        .search-button {
+            background-color: #FFFFFF;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background-color: #808080;
+        }
+
+
+        .upload-icon-label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-label {
+            color: blue;
+            cursor: pointer;
+        }
+
+        .uploaded-files {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .file-display {
+            margin-top: 10px;
+        }
+
+        .table-bordered {
+            width: 110%;
+            font-size: 14px;
+            border-collapse: collapse;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+
+        }
+
+        /* Style for the container of the smaller table */
+    .table-bordered-container {
+        max-width: 100%; /* Adjust the width as needed */
+        margin: 0 auto; /* Center the table horizontally */
+    }
+
+        /* Style for table header */
+        .table-bordered th {
+            background-color: #000000;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+
+        /* Style for table rows */
+        .table-bordered td {
+            vertical-align: middle;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+        /* Style for table rows on hover */
+        .table-bordered tbody tr:hover {
+            background-color: #FDFD96;
+        }
+
+        /* Style for the "Rename" and "Delete" buttons */
+        .rename-file-form, .delete-form {
+        margin: 0;
+        display: flex;
+        }
+
+        .rename-button {
+        margin-left: 7px; /* Add some space between buttons */
+        }
+
+
+        .rename-file-form input[type="text"],
+        .delete-form button {
+            border: none;
+            background-color: red;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .rename-file-form input[type="text"]:hover,
+        .delete-form button:hover {
+            color: #007bff;
+        }
+
+        /* Style for the "Rename" and "Delete" icons */
+        .rename-file-form .fas.fa-edit,
+        .delete-form .fas.fa-trash {
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        /* Style for the input field in the "Rename" form */
+        .rename-file-form input[type="text"] {
+        background-color: #f8f9fa;
+        border: 1px solid #ccc;
+        padding: 5px;
+        flex-grow: 1; /* Allow the input field to grow and take available space */
+        margin-right: 5px; /* Add some space between input and buttons */
+        }
+
+        /* Style for the "Cancel" button in the "Rename" form */
+        .rename-file-form .cancel-button {
+            background-color: #f8f9fa;
+            color: #007bff;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        /* Style for the "No files uploaded" message */
+        .smaller-table .no-files-message {
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .custom-context-menu {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.custom-context-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    text-align: left;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.custom-context-menu button:hover {
+    background-color: #FDFD96;
+}
+
+        .modal {
+        display: none; /* Hidden by default */
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5); /* Overlay background */
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto; /* Center the modal vertically and horizontally */
+            padding: 20px;
+            border: 1px solid #888;
+
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+.custom-modal {
+    display: none; /* Initially hide the modal */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 90px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    z-index: 9999; /* Ensure the modal appears above other elements */
+
+}
+
+.folder-list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px; /* Adjust the spacing between folder items */
+}
+
+.folder-item {
+    display: block;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.folder-icon {
+    width: 100px; /* Adjust the width of the folder icons */
+    height: auto;
+}
+
+.folder-id {
+    margin-top: 10px; /* Adjust the margin between the folder icon and folder ID */
+    font-size: 10px;
+}
+
+.no-folders {
+    text-align: center;
+}
+
+
+         /* Center the text horizontally and vertically in the table cells */
+    #file-list td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .breadcrumb {
+    margin-left: 20px;
+
+    z-index: 999; /* Ensure it appears above other elements */
+    background-color: transparent; /* Set the background color to transparent */
+    font-size: 14px;
+}
+
+/* Style for each breadcrumb item */
+.breadcrumb span {
+    margin-right: 5px;
+}
+
+/* Style for the last breadcrumb item (no link) */
+.breadcrumb span:last-child {
+    font-weight: bold;
+    color: #333; /* Change the color as needed */
+}
+
+.form-container form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+ .td {
+ align-items: center;
+ justify-content: center;
+ }
+
+
+
+.table-bordered-container {
+    overflow-x: auto; /* Enable horizontal scrolling for the container */
+}
+
+.sortable-header {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .sort-icon {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 5px 5px 0;
+        border-color: #fff transparent transparent transparent;
+    }
+
+    .sort-icon.asc {
+        border-width: 0 5px 5px;
+        border-color: transparent transparent #fff transparent;
+    }
+
+    .record-container {
+    border: 1px solid #ddd; /* Add a border */
+    padding: 15px; /* Add padding */
+    margin: 10px; /* Add margin for spacing */
+    border-radius: 8px; /* Add border-radius for rounded corners */
+    background-color: #fff; /* Add a light gray background color */
+}
+    .record1-container {
+    border: 1px solid #ddd; /* Add a border */
+    padding: 15px; /* Add padding */
+    margin: 10px; /* Add margin for spacing */
+    border-radius: 8px; /* Add border-radius for rounded corners */
+    background-color: #fff; /* Add a light gray background color */
+}
+.record-list {
+    list-style-type: none; /* Remove list bullets */
+    padding: 0;
+}
+
+.record-list li {
+    margin-bottom: 10px; /* Add margin between list items */
+}
+
+/* Add the following styles to adjust spacing */
+.mr-2 {
+    margin-right: 2px;
+}
+
+.ml-2 {
+    margin-left: 2px;
+}
+
+.record-list-container {
+        border-bottom: 1px solid #ccc; /* Add a gray border line */
+        padding-bottom: 10px; /* Optional: Adjust the padding for spacing */
+        margin-bottom: 10px; /* Optional: Adjust the margin for spacing */
+    }
+
+.record-list li {
+        border-bottom: 1px solid #ccc; /* Add a gray border line between list items */
+        padding-bottom: 10px; /* Optional: Adjust the padding for spacing */
+        margin-bottom: 15px; /* Add spacing between list items */
+    }
+    </style>
+</head>
+<body>
+
+<!-- Modal -->
+<div class="modal" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileModalLabel">User Profile</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Add your profile content here -->
+                <!-- For example, you can display user information -->
+                <!-- Content to be dynamically populated -->
+                <p><strong>Username:</strong> <span id="username">{{ user.username }}</span></p>
+
+                <p><strong>Email:</strong> <span id="email">{{ user.email }}</span></p>
+                <p><strong>Password:</strong> <span id="password">{{ user.password }}</span></p>
+                <!-- Button to trigger edit mode -->
+                <button id="editButton" class="btn btn-primary" data-user-id="{{ user.id }}">Edit Details</button>
+                <!-- Form for editing details (hidden by default) -->
+                <form id="editForm" style="display: none;" method="post" action="/edit_profile/{{ user.id }}/"> <!-- Include the user's ID in the URL -->
+                    {% csrf_token %}
+
+                    <!-- Username input -->
+                    <div class="form-group">
+                        <input type="hidden" id="user-id" name="user-id" value="{{ user.id }}">
+                        <label for="editUsername">New Username:</label>
+                        <input type="text" class="form-control" id="editUsername" name="editUsername" value="{{ user.username }}">
+                    </div>
+                    <!-- Email input -->
+                    <div class="form-group">
+                        <label for="editEmail">New Email:</label>
+                        <input type="email" class="form-control" id="editEmail" name="editEmail" value="{{ user.email }}">
+                    </div>
+                    <!-- Password input -->
+                    <div class="form-group">
+                        <label for="editPassword">New Password:</label>
+                        <input type="password" class="form-control" id="editPassword" name="editPassword" value="{{ user.password }}">
+                    </div>
+                    <!-- Submit button for editing -->
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </form>
+
+                <!-- Password change form (hidden by default) -->
+                <form id="changePasswordForm" style="display: none;">
+                    <!-- Current password input -->
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password:</label>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword">
+                    </div>
+                    <!-- New password input -->
+                    <div class="form-group">
+                        <label for="newPassword">New Password:</label>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword">
+                    </div>
+                    <!-- Confirm new password input -->
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password:</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                    </div>
+                    <!-- Submit button for changing password -->
+                    <button type="submit" class="btn btn-danger">Change Password</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+
+                <!-- Add other buttons or actions here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rename Modal -->
+    <div class="modal custom-modal" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="renameModalLabel">Rename File</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="fileIdToRename">
+                    <label for="newFileName">New File Name:</label>
+                    <input type="text" id="newFileName" class="form-control">
+                </div>
+                <div class="modal-footer">
+<!--                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
+                    <button type="button" id="renameFileButton" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div id="context-menu" class="custom-context-menu">
+        {% csrf_token %}
+        <button type="submit" id="rename-option">Rename</button>
+    <button type="submit" id="delete-option">Delete</button>
+</div>
+
+            <!-- Sidebar -->
+<div class="sidebar">
+    <div class="d-flex align-items-center">
+        <h2 class="flex-grow-1 center-text">
+            <b><a href="{% url 'records-index' %}" style="text-decoration:none; color:White">IPAMS</a></b>
+        </h2>
+    </div>
+
+    <a data-bs-toggle="modal" data-bs-target="#profileModal" id="edit-profile">
+    <i class="fas fa-user"></i>
+    <span class="center-text">Profile</span>
+    </a>
+
+    <a href="{% url 'file_management:browse_files' %}">
+        <i class="fas fa-folder"></i>
+        <span class="center-text">Browse Files</span>
+    </a>
+
+    <div class="sidebar-divider-horizontal"></div>
+
+    {% if user_role_id == 4 or user_role_id == 5 or user_role_id == 7 %}
+        <a href="{% url 'file_management:home_view' %}">
+            <i class="fas fa-home"></i>
+            <span class="center-text">Dashboard</span>
+        </a>
+
+        <a href="{% url 'file_management:audits' %}">
+            <i class="fas fa-folder"></i>
+            <span class="center-text">Audits</span>
+        </a>
+    {% endif %}
+
+    <!-- Add more sidebar items with icons as needed -->
+</div>
+
+<!-- Second sidebar -->
+<div class="sidebar second-sidebar" style="display: none;">
+    <a href="#" class="back-button">
+        <i class="fas fa-arrow-left"></i>
+        <span class="center-text">Back to Main</span>
+    </a>
+    <a href="{% url 'file_management:ipams_files_view' %}">
+        <i class="fas fa-folder"></i>
+        <span class="center-text">IPAMS Files</span>
+    </a>
+    <a href="{% url 'file_management:personal_files_view' %}">
+        <i class="fas fa-folder"></i>
+        <span class="center-text">Personal Files</span>
+    </a>
+</div>
+
+    <!-- Main content -->
+<div class="d-flex align-items-center" style="background-color:#550000; height: 130px; ">
+    {% if user_role_id == 3 or user.role.id == 4 or user_role_id == 5 or user_role_id == 7 %}
+        <h2 class="flex-grow-1 center-text">
+            <b><a href="{% url 'file_management:home_view' %}" style="text-decoration:none; color:White"><img src="{% static 'icons/ipams.png' %}" alt="" width="150" height="55"></a></b>
+        </h2>
+    {% endif %}
+    {% if user_role_id == 2 %}
+        <h2 class="flex-grow-1 center-text">
+            <b><a href="{% url 'file_management:browse_files' %}" style="text-decoration:none; color:White"><img src="{% static 'icons/ipams.png' %}" alt="" width="150" height="55"></a></b>
+        </h2>
+    {% endif %}
+</div>
+
+    <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" class="search-input" placeholder="Search...">
+    </div>
+
+    <div id="file-dropdown">
+    <ul id="file-dropdown-list"></ul>
+    </div>
+
+    <div class="d-flex justify-content-center mt-4"></div>
+     <!-- File Upload Form -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+        <!-- Form to Upload Files -->
+
+
+
+                <!-- Display parent subfolder (if available) -->
+    {% if parent_subfolder %}
+    <h2>Parent Subfolder: {{ parent_subfolder.name }}</h2>
+    {% endif %}
+    </div>
+
+        <div class="d-flex justify-content-center mt-4" style="margin-left: 120px;">
+
+    <!-- Container for Pending Records List -->
+    <div class="record-container" style="margin-right: 104px;">
+        <h5>Pending Attachments</h5>
+
+            {% for record_upload in record_uploads %}
+                {% if not record_upload.is_approved and not record_upload.is_declined %}
+                    <li class="context-menu-trigger" data-record-upload-id="{{ record_upload.id }}" data-file-id="{{ record_upload.id }}">
+                        {{ record_upload.filename }}
+                        <ul style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                            <li>Date Created: {{ record_upload.date_uploaded }}</li>
+                            <li>Version: {{ record_upload.version }}</li>
+                            <li>
+                                {% if record_upload.is_approved %}
+                                    Status: <span class="badge badge-success">Approved</span>
+                                {% else %}
+                                    Status: <span class="badge badge-warning">Pending Approval</span>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+    </div>
+
+    <!-- Display subfolders in a table -->
+    <div class="smaller-table-container">
+        <table class="table table-bordered" id="file-list-body">
+            <!-- Table content as before -->
+            <thead class="thead-dark">
+                <tr>
+                    <th class="sortable-header">Filename<span class="sort-icon"></span></th>
+                    <th>Action</th>
+                    <th class="sortable-header">Date Created<span class="sort-icon"></span></th>
+                    <th class="sortable-header">Version<span class="sort-icon"></span></th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record_upload in record_uploads %}
+                    {% if record_upload.is_approved %}
+                        <tr class="context-menu-trigger" data-record-upload-id="{{ record_upload.id }}" data-file-id="{{ record_upload.id }}">
+                            <td>{{ record_upload.filename }}</td>
+                            <td>
+                                <p><a href="{% url 'file_management:download_record_file' record_upload.id %}">Download</a></p>
+                            </td>
+                            <td>{{ record_upload.date_uploaded }}</td>
+                            <td>{{ record_upload.version }}</td>
+                            <td>
+                                {% if record_upload.is_approved %}
+                                    <span class="badge badge-success">Approved</span>
+                                {% else %}
+                                    <span class="badge badge-warning">Pending Approval</span>
+                                {% endif %}
+
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Container for Declined Records List -->
+   <div class="record1-container" style="margin-left: 154px; ">
+    <h5>Declined Attachments</h5>
+
+
+        {% for record_upload in declined_attachments %}
+            {% if record_upload.is_declined %}
+                <li class="context-menu-trigger" data-record-upload-id="{{ record_upload.id }}" data-file-id="{{ record_upload.id }}">
+                    {{ record_upload.filename }}
+                    <ul style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                        <li>Date Created: {{ record_upload.date_uploaded }}</li>
+                        <li>Version: {{ record_upload.version }}</li>
+                        <li>
+                            {% if record_upload.is_declined %}
+                                Disapproval: <span class="badge badge-danger">Declined</span>
+                            {% else %}
+                                Disapproval: <span class="badge badge-secondary">Not Declined</span>
+                            {% endif %}
+                        </li>
+
+                    </ul>
+                    </li>
+            {% endif %}
+
+        {% endfor %}
+
+</div>
+
+</div>
+
+
+
+
+
+
+
+{% with fullname=request.user.first_name|default:''|add:' '|add:request.user.last_name|default:'' %}
+
+    {% with a=1 %}
+      {% if fullname == record.representative %}
+        <form method="post" enctype="multipart/form-data" id="fileUploadForm">
+          {% csrf_token %}
+          <input type="hidden" name="record_id" value="{{ record.id }}">
+          <input type="hidden" name="upload_id" value="{{ upload.id }}" data-upload-id="{{ upload.id }}">
+          <div id="dropArea" style="border: 2px dashed #f2f2f2; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100px;">
+            <p id="chooseFilesText" style="cursor: pointer; text-decoration: underline">Drag and drop files here, or click to choose files.</p>
+            <input type="file" name="file" id="fileInput" style="display: none;" multiple>
+          </div>
+        </form>
+
+      {% endif %}
+    {% endwith %}
+
+{% endwith %}
+
+
+<script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'js/sweetalert/sweetalert2.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script>
+var currentUploadId = {{ upload.id }};
+
+$(document).ready(function () {
+
+    function logRecordAccess(recordId) {
+        // Log the record access here via AJAX or other method.
+        // You can make an AJAX request to your Django view to log the access event.
+        // Make sure you have a Django view that handles this.
+
+        // Example AJAX request:
+        $.ajax({
+            type: 'POST',
+            url: `/file_management/log_record_access/${recordId}/`,
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}', // You can use the Django template tag to get the CSRF token
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.success) {
+                    console.log('Record access logged successfully.');
+                } else {
+                    console.error('Error logging record access.');
+                }
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    // Calculate and display the total access count
+    function calculateTotalAccessCount() {
+        var totalAccessCount = 0;
+        $('.access-count').each(function () {
+            totalAccessCount += parseInt($(this).text());
+        });
+
+        // Display the total access count
+        $('#total-access-count').text(totalAccessCount);
+    }
+
+    // Call the function to calculate total access count
+    calculateTotalAccessCount();
+});
+
+    $(document).ready(function () {
+        function compareValues(a, b) {
+            return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        }
+
+        function toggleOrder(order) {
+            return order === 'asc' ? 'desc' : 'asc';
+        }
+
+        function parseColumnValue(column, row) {
+            const columnText = $(row).find(`td:eq(${column})`).text();
+            return columnText.toUpperCase();
+        }
+
+        function sortTable(column) {
+            const tableBody = $('#file-list-body tbody');
+            const rows = tableBody.find('.context-menu-trigger').toArray();
+            const orderDirection = tableBody.data('order-direction') || 'asc';
+
+            rows.sort(function (a, b) {
+                const aValue = parseColumnValue(column, a);
+                const bValue = parseColumnValue(column, b);
+
+                return orderDirection === 'asc' ? compareValues(aValue, bValue) : compareValues(bValue, aValue);
+            });
+
+            tableBody.empty();
+            tableBody.append(rows);
+            tableBody.data('order-direction', orderDirection);
+
+            $('.sort-icon').removeClass('asc desc');
+            $(`.sort-icon:eq(${column})`).addClass(orderDirection);
+        }
+
+        $('.sortable-header').click(function () {
+            const columnId = $(this).index();
+            const newOrderDirection = toggleOrder($('tbody').data('order-direction'));
+            $('tbody').data('order-direction', newOrderDirection);
+            sortTable(columnId);
+        });
+$(document).ready(function () {
+    // Your existing code for record links, incrementAccessCount, logRecordAccess, etc.
+
+    $('.search-input').on('input', function() {
+    const searchTerm = $(this).val().toLowerCase();
+    filterRecords(searchTerm);
+});
+
+    function filterRecords(searchTerm) {
+    const recordRows = $('#file-list-body tbody tr');
+    recordRows.each(function(index, row) {
+        const recordTitle = $(row).find('td:nth-child(1)').text().toLowerCase();
+        const isVisible = recordTitle.includes(searchTerm);
+
+        // Toggle visibility for each cell in the row
+        $(row).find('td').each(function() {
+            isVisible ? $(this).show() : $(this).hide();
+        });
+    });
+}
+
+    // Event listener for Enter key press in the search input field
+    $('.search-input').keyup(function (event) {
+        if (event.keyCode === 13) {
+            const searchTerm = $(this).val(); // Get the search term from the input field
+            filterRecords(searchTerm);
+        }
+    });
+    });
+    // Function to get the CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    $(document).ready(function () {
+        // Existing code for record-link
+        $('.record-link').click(function (event) {
+            event.preventDefault(); // Prevent the default navigation behavior
+
+            // Get the record ID from the data attribute
+            var recordId = $(this).data('record-id');
+            var url = $(this).attr('href');
+
+            // Increment the access count
+            incrementAccessCount(recordId);
+
+            // Open the URL
+            window.location.href = url;
+        });
+
+        const dropArea = document.getElementById('dropArea');
+        const chooseFilesText = document.getElementById('chooseFilesText');
+        const fileInput = document.getElementById('fileInput');
+
+        dropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropArea.style.border = '2px dashed #007bff';
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.style.border = '2px dashed #ccc';
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const files = e.dataTransfer.files;
+            fileInput.files = files;
+            dropArea.style.border = '2px dashed #ccc';
+            handleFiles(files);
+        });
+
+        chooseFilesText.addEventListener('click', () => {
+            // Trigger the file input when the text is clicked
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            // Handle selected files here
+            const selectedFiles = fileInput.files;
+            handleFiles(selectedFiles);
+        });
+
+        function handleFiles(files) {
+    const formData = new FormData(document.getElementById('fileUploadForm'));
+    const recordId = "{{ record.id }}"; // Replace with the actual record ID
+    const uploadId = "{{ upload.id }}"; // Use the currentUploadId variable
+    formData.set('record_id', recordId);
+    formData.set('upload_id', uploadId);
+
+    formData.delete('file');
+
+    for (let i = 0; i < files.length; i++) {
+        formData.append('file', files[i]);
+    }
+
+    fetch('/file_management/personal_files/folders/records/attachments/attachment-files/' + recordId + '/' + uploadId + '/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('Upload failed');
+        }
+    })
+    .then(html => {
+        document.open();
+        document.write(html);
+        document.close();
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Approval Sent',
+            text: 'An approval has been sent to Adviser.',
+        });
+
+        // Update the UI or perform additional actions as needed
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Upload Failed',
+            text: 'There was an error during the upload. Please try again.',
+        });
+
+        console.error('Error during upload:', error);
+    });
+}
+    });
+
+    // Function to handle the right-click event
+    $(document).on('contextmenu', '#file-list-body tr', function (event) {
+        event.preventDefault();
+
+        var recordID = "{{ record.id }}"; // Wrap in double quotes
+        var fileID = $(this).data('file-id');
+
+        var deleteButton = $('#delete-option'); // Store a reference to the delete button
+        var renameButton = $('#rename-option'); // Store a reference to the rename button
+
+        // Hide the context menu if it's already visible
+        $('#context-menu').hide();
+
+        $('#context-menu').css({
+            top: event.pageY + 'px',
+            left: event.pageX + 'px',
+            display: 'block'
+        });
+
+        // Get the record ID from the data attribute
+        var recordId = $(this).data('record-upload-id'); // Use the correct data attribute
+
+        // Event listener for the "Rename" option in the context menu
+        renameButton.on('click', function () {
+            const newFilename = prompt('Enter a new filename:');
+            if (newFilename !== null) {
+                // Include the CSRF token from cookies in the request
+                var csrfToken = getCookie('csrftoken');
+
+                var headers = {
+                    "X-CSRFToken": csrfToken
+                };
+
+                // Perform the file renaming using POST method
+                $.ajax({
+                    url: `/file_management/rename-file/${fileID}/`,
+                    type: 'POST',
+                    headers: headers,
+                    data: { new_file_name: newFilename },
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log('File name updated successfully:', data);
+                        // Update the UI or perform additional actions as needed
+                        location.reload(); // Refresh the page after renaming
+                    },
+                    error: function (error) {
+                        alert('An error occurred while updating the file name.');
+                        console.error(error);
+                    }
+                });
+            } else {
+                // If the user cancels, do nothing
+                $('#context-menu').hide(); // Hide the context menu
+            }
+        });
+
+        // Handle the "Delete" option
+        deleteButton.off('click'); // Remove previous click event handlers
+        deleteButton.on('click', function () {
+            // Ask for confirmation before proceeding
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You will not be able to recover this file!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel!',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Include the CSRF token from cookies in the request
+                    var csrfToken = getCookie('csrftoken');
+
+                    var headers = {
+                        "X-CSRFToken": csrfToken
+                    };
+
+                    // Perform the file deletion using DELETE method
+                    $.ajax({
+                        url: `/file_management/record-detail/${recordID}/delete-file/${fileID}/`,
+                        type: 'DELETE',
+                        headers: headers,
+                        success: function (data) {
+                            // Update the UI or perform additional actions as needed
+                            console.log('File deleted successfully:', data);
+
+                            // Remove the row from the table
+                            deleteButton.closest('tr').remove();
+                            $('#context-menu').hide(); // Hide the context menu
+
+                            // Refresh the page after a successful file deletion
+                            window.location.reload();
+                        },
+                        error: function (error) {
+                            alert('An error occurred while deleting the file.');
+                            console.error(error);
+                        }
+                    });
+                } else {
+                    // If the user cancels, do nothing
+                    $('#context-menu').hide(); // Hide the context menu
+                }
+            });
+        });
+    });
+
+    // Hide the context menu when clicking elsewhere
+    $(document).on('click', function () {
+        $('#context-menu').hide();
+    });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+    // Get the modal element
+    var profileModal = document.getElementById("profileModal");
+
+    // Get the close button inside the modal header
+    var closeButtonHeader = profileModal.querySelector(".modal-header .close");
+
+    // Function to open the modal
+    function openModal() {
+        profileModal.style.display = "block";
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        profileModal.style.display = "none";
+    }
+
+    // Add click event listener to open the modal
+    var profileLink = document.getElementById("edit-profile");
+    profileLink.addEventListener("click", function (event) {
+        event.preventDefault(); // Prevent the default behavior of the link
+        openModal();
+    });
+
+    // Add click event listener to the close button in the header
+    closeButtonHeader.addEventListener("click", closeModal);
+
+        var profileLink = document.getElementById("edit-profile");
+    var profileModal = document.getElementById("profileModal");
+    var editForm = document.getElementById("editForm");
+    var changePasswordForm = document.getElementById("changePasswordForm");
+    var usernameSpan = document.getElementById("username");
+    var emailSpan = document.getElementById("email");
+    var passwordSpan = document.getElementById("password");
+
+    // Retrieve the CSRF token from the cookie (Django sets it in a cookie by default)
+    var csrfToken = document.cookie.match(/csrftoken=([\w-]+)/)[1];
+
+    // Variable to track whether the edit details form is currently visible
+    var editFormVisible = false;
+
+    // Function to open the modal and populate user information
+    function openModal() {
+        profileModal.style.display = "block"; // Set the modal display style to "block"
+    }
+
+    // Function to close the modal
+    function closeModal() {
+        profileModal.style.display = "none"; // Set the modal display style to "none" to close it
+    }
+
+    // Function to toggle between user details and edit details forms
+    function toggleForms() {
+        if (editFormVisible) {
+            editForm.style.display = "none";
+            usernameSpan.style.display = "inline";
+            emailSpan.style.display = "inline";
+            passwordSpan.style.display = "inline";
+        } else {
+            editForm.style.display = "block";
+            usernameSpan.style.display = "none";
+            emailSpan.style.display = "none";
+            passwordSpan.style.display = "none";
+        }
+
+        // Toggle the boolean variable
+        editFormVisible = !editFormVisible;
+    }
+
+    // Add a click event listener to the "Profile" link to open the modal
+    profileLink.addEventListener("click", function(event) {
+        event.preventDefault(); // Prevent the default behavior of the link
+        openModal();
+    });
+
+    // Add click event listeners to the close buttons
+    var closeButtonHeader = profileModal.querySelector(".modal-header .close");
+    closeButtonHeader.addEventListener("click", closeModal);
+
+    // Show the modal when the "Edit" button is clicked
+    var editButton = document.getElementById("editButton");
+    editButton.addEventListener("click", function() {
+        profileModal.style.display = "block";
+        toggleForms(); // Toggle the edit form visibility
+    });
+
+    // Function to check if any changes have been made
+        function hasChanges() {
+            var currentUsername = $('#username').text();
+            var currentEmail = $('#email').text();
+            var currentPassword = $('#password').text(); // Note: Avoid displaying the actual password
+
+            var newUsername = $('#editUsername').val();
+            var newEmail = $('#editEmail').val();
+            var newPassword = $('#editPassword').val();
+
+            // Check if any changes have been made
+            return (
+                newUsername !== currentUsername ||
+                newEmail !== currentEmail ||
+                newPassword !== currentPassword
+            );
+        }
+
+    // Handle the form submissions
+        editForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Check if any changes have been made
+            if (!hasChanges()) {
+                // If no changes, show an alert and return
+                alert('No changes made to the profile.');
+                return;
+            }
+
+            const userId = $(this).data('file-id');
+            var user_id = $('#user-id').val();
+            var new_username = $('#editUsername').val();
+            var new_email = $('#editEmail').val();
+            var new_password = $('#editPassword').val();
+
+            // Check if the values are unchanged
+            if (
+                new_username === $('#username').text().trim() &&
+                new_email === $('#email').text().trim() &&
+                new_password === $('#password').text().trim()
+            ) {
+                // Values are unchanged, you can handle this case (e.g., show an alert)
+                console.log('No changes detected. Provide feedback to the user.');
+                return;
+            }
+
+            // Check if any of the required fields is empty
+            if (!new_username || !new_email || !new_password) {
+                // Handle the case where any of the fields is empty (e.g., show an alert)
+                alert('No changes made to the profile.');
+                return;
+            }
+
+
+        $.ajax({
+                type: 'POST',
+                url: '/file_management/edit_profile/' + user_id + '/',
+                data: {
+                    user_id: userId,
+                    new_username: new_username,
+                    new_email: new_email,
+                    new_password: new_password,
+                    csrfmiddlewaretoken: csrfToken
+                },
+                success: function (data) {
+                    // Handle the success response here
+                    console.log('Success:', data);
+
+                    // After successful update, automatically refresh the page
+                    window.location.reload();
+                },
+                error: function (error) {
+                    // Handle the error response here
+                    console.error('Error:', error);
+
+                    // Show an alert for the error
+                    alert('Error updating profile. Please try again.');
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

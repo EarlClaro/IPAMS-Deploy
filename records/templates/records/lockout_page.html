@@ -1,0 +1,11 @@
+{% extends 'ipams/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="container " style="margin-top: 50px; text-align: center;">
+        <div class="icon"><i class="fas fa-lock fa-8x" style="padding-bottom: 30px;"></i></div>
+        Locked out due to too many login failures. <br> Max limit has been reached. Please contact the admin to reset account.
+        <br><br>
+        <button class="btn base-btn base-bg-primary"><a href="{% url 'records-index' %}" style="font-size: 18px; color: black">Back to Homepage</a></button>
+    </div>
+{% endblock %}

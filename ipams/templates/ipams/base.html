@@ -1,0 +1,841 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <title>IPAMS</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap/bootstrap.min.css' %}">
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha384-rzO2X1rD2LlH2PJ4QnS46a5yPGXuJ9s6YOtg+FdPTJoRXPmXaWbrtPQop5aFJbD" crossorigin="anonymous">-->
+
+    <!-- Data Tables -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/datatables/dataTables.bootstrap4.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/datatables/select.dataTables.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sweetalert/sweetalert2.min.css' %}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css"/>
+    <!-- <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/flick/jquery-ui.css"> -->
+    <link rel="stylesheet" type="text/css" href="{% static 'jquery-ui-1.12.1/jquery-ui.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'tagify/tagify.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home_media.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/home.css' %}"/>
+
+   
+    <!-- Styles -->
+    {% block head %}{% endblock %}
+    <style>
+        .main-container{
+            padding-top: 120px;
+            padding-bottom: 110px;
+        }
+
+        .sidenav{
+                height: 100%;
+                position:fixed;
+                background-color: #000036   ;
+                float:left;
+                padding-top: 114px;
+                padding-left: 30px;
+                padding-right: 20px;
+            }
+
+        .sidenav-divider{
+            border-top: 1px solid white;
+            width: 175px;
+            margin-left: 20px;
+        }
+
+        .sidenav a:hover {
+            color: #ffbf00;
+        }
+
+        .sidenav a {
+            text-decoration: none;
+            margin-bottom: 10px;
+            color: #FFFFFF;
+        }
+
+        #div_id_username{
+            margin-right: 10px;
+        }
+
+        .modal-header gold{
+            background-color: white;
+            color: #ffbf00;
+        }
+
+        @media (max-width: 767px) {
+        .login-form-container {
+            width: 100%;
+            padding: 10px;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            padding: 0 10px;
+        }
+
+        .login-btn-group {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin-top: 15px;
+        }
+
+        .login-btn-group .btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        
+    }
+
+         /* Custom styles for the modal */
+         #subscriptionModal .modal-content {
+            background-color: whitesmoke;
+            color: black;
+        }
+        #subscriptionModal .modal-header {
+            background-color: #FFD700;
+            color: black;
+            border-bottom: 2px solid black;
+        }
+        #subscriptionModal .modal-footer {
+            background-color: whitesmoke;
+        }
+        #subscriptionModal .btn-primary {
+            background-color: #f0cc2b;
+            border-color: #B8860B;
+            color: black;
+        }
+        #subscriptionModal .btn-primary:hover {
+            background-color: #DAA520;
+            border-color: #DAA520;
+            color: white;
+        }
+        #subscriptionModal .btn-danger {
+            background-color: #d41111;
+            border-color: #8B0000;
+            color: black;
+        }
+        #subscriptionModal .btn-danger:hover {
+            background-color: #B22222;
+            border-color: #B22222;
+            color: white;
+        }
+
+    
+    </style>
+</head>
+<body>
+    {{ redirect_to_login_immediately }}
+    <div class="container-fluid px-0">
+
+        <!-------------------------- NAVBAR ------------------------------->
+        
+        <div class="navbar base-bg-primary d-flex fixed-top mw-100 pr-5 mb-10">
+            <div class="col-4">
+                <a href="{% url 'records-index' %}"><img src="{% static 'icons/ipams.png' %}" alt="" width="140" height="50"></a>
+            </div>
+
+            {% if not hide_profile %}
+            <div class="col-8 nav-list d-flex align-items-center justify-content-end" style="height: 70px;">
+
+            <!-- Login Form -->
+
+                {% if not user.is_authenticated %}
+                <div class="login-form-container pt-4" >
+                    <form class="px-4 py-3 text-white" method="post" action="{% url 'accounts-login' %}">
+                        
+                        {% csrf_token %}
+                            <div class="row flex-nowrap align-items-center">
+                                <div class="row ml-0 mr-0 login-form" >
+                                    {{ login_form|crispy }}
+                                </div>
+                                <div class="login-btn-group mt-3">
+                                    <button type="submit" class="btn base-btn base-bg-secondary ml-2">Sign In</button>
+                                    <a href="{% url 'accounts-signup' %}"><button type="button" class="btn base-btn base-bg-secondary ml-2">Signup</button></a>
+                                </div>
+                            </div>
+                            {% if login_required %}
+                                <input name="next" type="hidden" value="{{ login_required }}" style="color: white">
+                            {% endif %}
+                            {% if not test_form %}
+                                <script src='https://www.google.com/recaptcha/api.js'></script>
+                                <div class="g-recaptcha" data-sitekey="{{ site_key }}" ></div>
+                            {% endif %}
+                            </div> 
+                    </form> 
+                </div>
+                {% else %}
+
+                <!-- Nav Icons -->
+                {% if user.role.id > 1 %}
+                    <a class='nav-icon-item mr-4 ' href="{% url 'records-index' %}"><img src="{% static 'icons/home.png' %}" alt="" width="27" height="27" style="margin-top: 2px;"></a>
+                {% endif %}
+                {% if user.role.id == 1 or user.role.id == 2 %}
+                    <a class='nav-icon-item mt-1' href="{% url 'notifications:student_notifications' %}"><i class="nav-icon fa fa-bell fa-lg " aria-hidden="true" width="27" height="27"></i><span> {{ notif_count }} </span></a>
+                {% endif %}
+                {% if user.role.id == 3 %}
+                    <a class='nav-icon-item mt-1' href="{% url 'notifications:adviser_notifications' %}"><i class="nav-icon fa fa-bell fa-lg " aria-hidden="true" width="27" height="27"></i><span> {{ notif_count }} </span></a>
+                {% endif %}
+                {% if user.role.id == 4 %}
+                    <a class='nav-icon-item mt-1' href="{% url 'notifications:ktto_notifications' %}"><i class="nav-icon fa fa-bell fa-lg " aria-hidden="true" width="27" height="27"></i><span> {{ notif_count }} </span></a>
+                {% endif %}
+                {% if user.role.id == 5 %}
+                    <a class='nav-icon-item mt-1' href="{% url 'notifications:rdco_notifications' %}"><i class="nav-icon fa fa-bell fa-lg " aria-hidden="true" width="27" height="27"></i><span> {{ notif_count }} </span></a>
+                {% endif %}
+                {% if user.role.id == 6 %}
+                    <a class='nav-icon-item mt-1' href="{% url 'notifications:itso_notifications' %}"><i class="nav-icon fa fa-bell fa-lg " aria-hidden="true" width="27" height="27"></i><span> {{ notif_count }} </span></a>
+                {% endif %}
+                {% if user.role.id == 7 %}
+                    <a class='nav-icon-item mt-1' href="{% url 'notifications:tbi_notifications' %}"><i class="nav-icon fa fa-bell fa-lg " aria-hidden="true" width="27" height="27"></i><span> {{ notif_count }} </span></a>
+                {% endif %}
+
+               
+                <!-- Menu  -->
+                <div class="dropdown">
+                    <button data-backdrop="false" type="button" class="btn base-bg-secondary ml-3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-bars fa-md"></i>
+                    </button>
+                    <div class="navbar-menu dropdown-menu dropdown-menu-right">
+
+                        <label class="dropdown-item disabled">{{ user.username }}</label>
+                        <a class="dropdown-item" href="#" data-toggle="modal" data-target="#profile-modal">Profile</a>
+                        {% if user.role.id == 3 %}
+                            <a class="dropdown-item" href="{% url 'manage-accounts' %}">Manage Accounts</a>
+                        {% endif %}
+                        {% if user.role.id > 3 %}
+                            <a class="dropdown-item" href="{% url 'records-dashboard' %}">Dashboard</a>
+                        {% endif %}
+
+                        <a class="dropdown-item" href="{% url 'subscribe' %}" id="subscribe-button">Subscribe</a>
+
+                        <div class="dropdown-divider"></div>
+                        {% comment %}
+                        <h6 class="dropdown-header"><i class="fa fa-book"></i> Records</h6>
+                        <a class="dropdown-item" href="{% url 'records-myrecords' %}">My records</a>
+                        {% endcomment %}
+
+                        {% if user.role.id == 2 or user.role.id == 3 or user.role.id == 4 %}
+                            {% if user.is_subscribed or user.role.id >= 3%}
+                                <a class="dropdown-item" href="{% url 'file_management:browse_files' %}">File Management</a>
+                            {% else %}
+                                <a class="dropdown-item" href="#" onclick="alert('Can\'t access this feature if not subscribed'); window.location.href='/';">File Management</a>
+                            {% endif %}
+                        {% elif user.role.id > 4 %}
+                            <a class="dropdown-item" href="{% url 'file_management:home_view' %}">File Management</a>
+                        {% endif %}
+
+                        {% if user.role.id > 2 and user.role.id < 6 or user.role.id == 7 %}
+                            {% comment %}
+                            <a class="dropdown-item" href="{% url 'records-pending' %}" id="profile-pending">Pending</a> 
+                            <a class="dropdown-item" href="{% url 'records-approved' %}">Approved</a>
+                            <a class="dropdown-item" href="{% url 'records-declined' %}">Declined</a>
+                            {% endcomment %}
+                        {% endif %}
+
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="{% url 'accounts-manual' %}"><i class="fa fa-question"></i> Help</a>
+                        <a class="dropdown-item" href="{% url 'accounts-logout' %}"><i class="fa fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+
+                <!-- Closing the unclosed if statement at the end -->
+                {% endif %}
+
+            </div>
+            {% endif %}
+
+        </div>
+
+
+        <!-------------------------- SIDENAV ------------------------------->
+
+         <!-- Student Navbar -->
+        {% if user.role.id > 1 %} 
+            <div class="flex-wrap">
+                <div class="row flex-nowrap">
+                    <div class="sidenav col-auto col-md-2 min-vh-100">
+                            <ul class="nav nav-pills flex-column mt-2">
+                                <li class="nav-item">
+                                    <a  href="/record/publishedRecords" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-newspaper d-sm-inline"></i><span class="fs-4 d-none d-sm-inline">&nbsp Published Records</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a  href="/records/user/" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-address-book"></i><span class="fs-4 d-none d-sm-inline">&nbsp My Records</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a  href="/add/" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-folder-plus"></i><span class="fs-4 d-none d-sm-inline">&nbsp Add Record</span></a>
+                                </li>
+                                {% if user.is_subscribed %}
+                                <li class="nav-item">
+                                    <a href="/uploadexcel/" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp; Import Records</span>
+                                    </a>
+                                </li>
+                                {% else %}
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link" aria-current="page" onclick="alert('Can\'t access this feature if not subscribed');">
+                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp; Import Records</span>
+                                    </a>
+                                </li>
+                                {% endif %}
+                            
+                            </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Adviser Navbar -->
+        {% if user.role.id == 3 %}
+            <div class="flex-wrap">
+                <div class="row flex-nowrap">
+                    <div class="sidenav col-auto col-md-2 min-vh-100">
+                        <ul class="nav nav-pills flex-column mt-2" >
+                            <li class="nav-item">
+                                <a  href="/record/publishedRecords" class="nav-link" aria-current="page">
+                                    <i class="fs-5 fa fa-newspaper d-sm-inline"></i><span class="fs-4 d-none d-sm-inline">&nbsp Published Records</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a  href="/records/user/" class="nav-link" aria-current="page">
+                                    <i class="fs-5 fa fa-address-book"></i><span class="fs-4 d-none d-sm-inline">&nbsp My Records</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a  href="/add/" class="nav-link" aria-current="page">
+                                    <i class="fs-5 fa fa-folder-plus"></i><span class="fs-4 d-none d-sm-inline">&nbsp Add Record</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a  href="/uploadexcel/" class="nav-link" aria-current="page"> 
+                                    <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp Import Records</span></a>
+                            </li>
+                        </ul>
+                        <hr class='sidenav-divider'>
+                        <ul class="faculty-items nav nav-pills flex-column mt-2 ml-4">
+                            <div class="mb-1" style="color: white;">Submitted Records</div>
+                            <li class="nav-item mb-2">
+                                {% comment %} <a class="dropdown-item" href="{% url 'records-pending' %}" id="profile-pending">Pending</a> {% endcomment %}
+                                <a id="profile-pending" href="/records/pending/" >
+                                    <i class="fas fa-exclamation-circle" style="color: #ffc107;"></i><span class="fs-4 d-none d-sm-inline">&nbsp Pending</span>
+                                </a>
+                            </li> 
+                            <li class="nav-item mb-2">
+                                <a href="/records/approved/">
+                                    <i class="fas fa-check-circle" style="color: green"></i><span class="fs-4 d-none d-sm-inline">&nbsp Approved</span>
+
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a href="/records/declined/">
+                                    <i class="fas fa-times-circle" style="color: red"></i><span class="fs-4 d-none d-sm-inline">&nbsp Declined</span>
+                                </a>
+                            </li>                 
+                        </ul>
+                        <hr class='sidenav-divider'>
+                        <ul class="nav nav-pills flex-column mt-2 ml-4">
+                            <div class="mb-1" style="color: white;">Submitted Attachments</div>
+                            <li class="nav-item mb-2">
+                                {% comment %} <a class="dropdown-item" href="{% url 'records-pendingAttachments' %}" id="profile-pending1">Pending</a> {% endcomment %}
+                                <a id="profile-pending1" href="/records/pendingAttachments/" >
+                                    <i class="fas fa-exclamation-circle" style="color: #ffc107;"></i><span class="fs-4 d-none d-sm-inline">&nbsp Pending</span>
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a href="/records/approvedAttachments/">
+                                    <i class="fas fa-check-circle" style="color: green"></i><span class="fs-4 d-none d-sm-inline">&nbsp Approved</span>
+
+                                </a>
+                            </li>
+                            <li class="nav-item mb-2">
+                                <a href="/records/declinedAttachments/">
+                                    <i class="fas fa-times-circle" style="color: red"></i><span class="fs-4 d-none d-sm-inline">&nbsp Declined</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- TBI,KTTO, RDCO -->
+        {% if user.role.id >= 4 %}
+            <div class="flex-wrap">
+                <div class="row flex-nowrap">
+                    <div class="sidenav col-auto col-md-2 min-vh-100">
+                            <ul class="nav nav-pills flex-column mt-2" >
+                                <li class="nav-item">
+                                    <a  href="/record/publishedRecords" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-newspaper d-sm-inline"></i><span class="fs-4 d-none d-sm-inline">&nbsp Published Records</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a  href="/records/user/" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-address-book"></i><span class="fs-4 d-none d-sm-inline">&nbsp My Records</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a  href="/add/" class="nav-link" aria-current="page">
+                                        <i class="fs-5 fa fa-folder-plus"></i><span class="fs-4 d-none d-sm-inline">&nbsp Add Record</span></a>
+                                </li>
+                                <li class="nav-item">
+                                    <a  href="/uploadexcel/" class="nav-link" aria-current="page"> 
+                                        <i class="fs-5 fa fa-file-import"></i><span class="fs-4 d-none d-sm-inline">&nbsp Import Records</span></a>
+                                </li>
+                            </ul>   
+                            <ul class="faculty-items nav nav-pills flex-column mt-2 ml-3">
+                                <div class="mb-3" style="color: white;">Submitted Records</div>
+                                <li class="nav-item mb-3">
+                                    {% comment %} <a class="dropdown-item" href="{% url 'records-pending' %}" id="profile-pending">Pending</a> {% endcomment %}
+                                    <a id="profile-pending" href="/records/pending/" >
+                                        <i class="fas fa-exclamation-circle" style="color: #ffc107;"></i><span class="fs-4 d-none d-sm-inline">&nbsp Pending</span>
+                                    </a>
+                                </li> 
+                                <li class="nav-item mb-3">
+                                    <a href="/records/approved/">
+                                        <i class="fas fa-check-circle" style="color: green"></i><span class="fs-4 d-none d-sm-inline">&nbsp Approved</span>
+    
+                                    </a>
+                                </li>
+                                <li class="nav-item mb-3">
+                                    <a href="/records/declined/">
+                                        <i class="fas fa-times-circle" style="color: red"></i><span class="fs-4 d-none d-sm-inline">&nbsp Declined</span>
+                                    </a>
+                                </li>   
+                                <li class="nav-item mb-3">
+                                    <a href="/records/requests/">
+                                        <i class="fas fa-envelope" style="color: #00c0f098;"></i></i><span class="fs-4 d-none d-sm-inline">&nbsp Requests</span>
+                                    </a>
+                                </li>                    
+                            </ul>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Content Container -->        
+        <div class="main-container" {% if user.is_authenticated and user.role.pk >= 2 %} style="margin-left: 230px;" {% endif %}>
+            <div class="content-container">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="row justify-content-center">
+                            
+                                {% if message.tags == 'error' %}
+                                <div class="alert alert-danger center-block alert-dismissible fade show " role="alert" style="width: 45%;margin-top:20px">
+                                {% endif %}
+                                {% if message.tags == 'success' %}
+                                <div class="alert alert-success center-blockalert-dismissible fade show " role="alert" style="width: 45%;;margin-top:20px">
+                                {% endif %}
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                            </div>
+                        </div>
+                {% endfor %}
+                {% endif %}
+                {% if login_required %}
+                <div class="row">
+                    <div class="col-12">
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="width: 45% ;margin: 0 auto; margin-top:30px">
+                            Login required
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% block content %}{% endblock %}
+            </div>
+        </div>
+
+        <!-- --------------------------------Modal--------------------------------------------- -->
+        <div class="modal fade" id="profile-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="post" id="profile-form">
+                        {% csrf_token %}
+                        <div class="modal-header base-bg-secondary">
+                            <h5 class="modal-title">Profile</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="row">
+                                            <div class="col-6">
+
+                                            </div>
+                                            <div class="col-12">
+                                                <div class="row">
+                                                    <div class="col-12 d-flex justify-content-end">
+                                                        <a href="#" id="edit-profile" style="margin-right:10px;">Edit profile</a>
+                                                        <a href="#" id="change-password" data-toggle="modal" data-target="#change-password-modal">Change Password</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Name:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control profile-input" value="{{ user.first_name }} {{ user.middle_name }} {{ user.last_name }}" id="full_name" readonly>
+                                                <div class="row" style="display:none" id="multi-name-row">
+                                                    <div class="col-4">
+                                                        <input class="form-control profile-input" placeholder="First" value="{{ user.first_name }}" id="first_name" name="first_name">
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <input class="form-control profile-input" placeholder="Middle" value="{{ user.middle_name }}" id="middle_name" name="middle_name">
+                                                    </div>
+                                                    <div class="col-4">
+                                                        <input class="form-control profile-input" placeholder="Last" value="{{ user.last_name }}" id="last_name" name="last_name">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <divion class="row profile-row">
+                                            <div class="col-3">
+                                                <label>E-mail:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control profile-input" value="{{ user.email }}" readonly>
+                                            </div>
+                                        </divion>
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Input Reference Number:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input type="text" class="form-control profile-input" id="reference_number" name="reference_number">
+                                                <button type="button" class="btn btn-primary mt-1" id="verify_button">Activate</button>
+                                            </div>
+                                        </div>
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Subscription:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control profile-input" 
+                                                       value="{{ subscription_plan_name }}" 
+                                                       id="subscription_status" 
+                                                       readonly>
+                                            </div>
+                                        </div>
+                                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                                        <script>
+                                            $(document).ready(function() {
+                                                $('#verify_button').click(function() {
+                                                    var referenceNumber = $('#reference_number').val().trim();
+                                                    if (referenceNumber !== '') {
+                                                        $.ajax({
+                                                            type: 'POST',
+                                                            url: '/verify_subscription/',
+                                                            data: {
+                                                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                                                                reference_number: referenceNumber
+                                                            },
+                                                            success: function(response) {
+                                                                console.log(response); // Log the response for debugging
+                                                                if (response.success) {
+                                                                    alert(response.message);
+                                                                    location.reload();
+                                                                } else {
+                                                                    alert(response.message);
+                                                                }
+                                                            },
+                                                            error: function(xhr, status, error) {
+                                                                console.error('AJAX Error:', error);
+                                                                alert('An error occurred while verifying the subscription. Please check the server logs for more details.');
+                                                            }
+                                                        });
+                                                    } else {
+                                                        alert('Please enter a reference number.');
+                                                    }
+                                                });
+                                            });
+
+                                            
+                                        </script>
+                                        {% if user.role.pk == 2 %}
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-3">
+                                                <label>Program:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control" value="{{ user.student.course.name }}" readonly>
+                                            </div>
+                                        </div>
+
+                                        
+                                        
+                                        {% endif %}
+                                        {% if user.role.pk == 3 %}
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-3">
+                                                <label>College:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control" value="{{ user.adviser.college.name }}" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-3">
+                                                <label>Department:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control" value="{{ user.adviser.department.name }}" readonly>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Contact:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input class="form-control profile-input editable" value="{{ user.contact_no }}" id="contact_no" name="contact_no" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="row profile-row" id="profile-btn-footer" style="display:none">
+                                            <div class="col-12 d-flex justify-content-end">
+                                                <button type="button" class="btn btn-danger" style="margin-right:10px" id="btn-profile-cancel">Cancel</button>
+                                                <button type="button" class="btn btn-success" id="btn-profile-save">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Change Password Modal -->
+        <div class="modal fade" id="change-password-modal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form method="post" action="{% url 'accounts-change-password' %}" id="change-password-form">
+                        {% csrf_token %}
+                        <div class="modal-header gold">
+                            <h5 class="modal-title" style="color: #ffbf00;">Change Password</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container">
+                                <div class="row ml-0 mr-0">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label for="password-old">Old password</label><input type="password" class="form-control" id="password-old" name="password-old" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="password-new">New password</label><input type="password" class="form-control" id="password-new" name="password-new" required>
+                                        </div>
+                                        <div class="row profile-row" id="change-password-btn-footer">
+                                            <div class="col-12 d-flex justify-content-end">
+                                                <button type="button" class="btn btn-danger" data-dismiss="modal" style="margin-right:10px" id="btn-change-password-cancel">Cancel</button>
+                                                <button type="submit" class="btn btn-success" id="btn-change-password-save">Save</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- end of modals -->
+</div>
+
+    <script src="{% static 'js/jquery/jquery-3.5.1.min.js' %}"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script> -->
+    <script src="{% static 'jquery-ui-1.12.1/jquery-ui.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/bootstrap/popper.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/datatables/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/datatables/dataTables.bootstrap4.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/datatables/dataTables.select.min.js' %}"></script>
+    <script src="{% static 'js/sweetalert/sweetalert2.min.js' %}"></script>
+    <script src="{% static 'js/chart/Chart.min.js' %}"></script>
+    <script src="{% static 'tagify/tagify.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.5.2/bootbox.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function() {
+            var alertStatus = sessionStorage.getItem('alertStatus');
+            var alertMessage = sessionStorage.getItem('alertMessage');
+
+            if (alertStatus === 'success') {
+              $("#alert-messege").append('<div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top:20px">' + alertMessage + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            } else if (alertStatus === 'notifError') {
+              $("#alert-messege").append('<div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin-top:20px">' + alertMessage + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            } else if (alertStatus === 'error') {
+              $("#alert-messege").append('<div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top:20px">' + alertMessage + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>');
+            }
+
+            // Clear the stored values from session storage
+            sessionStorage.removeItem('alertStatus');
+            sessionStorage.removeItem('alertMessage');
+          });
+        $("#edit-profile").on("click",function(){
+            $(".profile-input.editable").removeAttr("readonly");
+            $("#edit-profile").hide();
+            $("#profile-btn-footer").show();
+            $("#full_name").hide()
+            $("#multi-name-row").show();
+        });
+        $("#btn-profile-cancel").on("click",function(){
+            $(".profile-input.editable").attr("readonly", "true");
+            $("#edit-profile").show();
+            $("#profile-btn-footer").hide();
+            $("#full_name").show();
+            $("#multi-name-row").hide();
+        });
+
+        {% if not hide_profile %}
+        $("#btn-profile-save").on("click", function(){
+            $("#profile-btn-footer").hide();
+            $.ajax({
+               	headers: { "X-CSRFToken": '{{ csrf_token }}' },
+               	url: "{% url 'accounts-profile-save' %}",
+               	type: "post",
+		    	data: $("#profile-form").serialize(),
+		    	success: function(data){
+                    $("#btn-profile-cancel").click();
+                    $("#full_name").val($("#first_name").val()+" "+$("#last_name").val());
+		    	},
+		    	error: function(data){
+		    		alert("error");
+		    	}
+            });
+        });
+        {% endif %}
+
+
+        {% if user.role.id > 2 and user.role.id < 6 or user.role.id == 7 %}
+            $.ajax({
+               	headers: { "X-CSRFToken": '{{ csrf_token }}' },
+               	url: "{% url 'accounts-get-pending-count' %}",
+               	type: "post",
+		    	success: function(data){
+		    	    if(data['pending-count'] > 0)
+		    	        $("#profile-pending").html('<i class="fas fa-exclamation-circle" style="color: #ffc107;"></i><span class="fs-4 d-none d-sm-inline">&nbsp Pending&nbsp - </span><div class="badge badge-warning" style="margin-left: 5px; padding: 5px; text-indent:1px;" >'+data['pending-count']+'</div>');
+		    	},
+		    	error: function(data){
+		    		alert("error");
+		    	}
+            });
+        {% endif %}
+        {% if user.role.id > 2 %}
+            $.ajax({
+               	headers: { "X-CSRFToken": '{{ csrf_token }}' },
+               	url: "{% url 'accounts-get-pending-counts' %}",
+               	type: "post",
+		    	success: function(data){
+		    	    if(data['pending-count'] > 0)
+		    	        $("#profile-pending1").html('<i class="fas fa-exclamation-circle" style="color: #ffc107;"></i><span class="fs-4 d-none d-sm-inline">&nbsp Pending&nbsp - </span><div class="badge badge-warning" style="margin-left: 5px; padding: 5px; text-indent:1px;" >'+data['pending-count']+'</div>');
+		    	},
+		    	error: function(data){
+		    		alert("error");
+		    	}
+            });
+        {% endif %}
+    </script>                                           
+
+    {% block footer %}{% endblock %}
+
+    <!-- Modal -->
+    {% if show_modal %}
+    <div id="subscriptionModal" class="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Subscription Expiry</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Your subscription is about to expire. Do you want to renew or cancel your subscription?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="renew-button" type="button" class="btn btn-primary">Renew</button>
+                    <button id="cancel-button" type="button" class="btn btn-danger">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+
+    <script>
+        $(document).ready(function() {
+            console.log("Show modal (inside jQuery): {{ show_modal|yesno:'true,false' }}");
+
+            {% if show_modal %}
+            $('#subscriptionModal').modal('show');
+            {% endif %}
+
+            $('#renew-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "renew_subscription" %}',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while renewing the subscription.');
+                    }
+                });
+            });
+
+            $('#cancel-button').click(function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "cancel_subscription" %}',
+                    data: {
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        alert(response.message);
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', error);
+                        alert('An error occurred while canceling the subscription.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

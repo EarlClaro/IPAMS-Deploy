@@ -1,0 +1,34 @@
+<div id="conference-rows">
+    <div class="row">
+        <div class="col-lg-2">
+            <div class="label">Label:</div>
+        </div>
+        <div class="col-lg-4">
+            <div class="label">Title:</div>
+        </div>
+        <div class="col-lg-2">
+            <div class="label">Date:</div>
+        </div>
+        <div class="col-lg-4">
+            <div class="label">Venue:</div>
+        </div>
+    </div>
+    {% for conference in record.conference_set.all %}
+        <div class="row" id="conference-1" style="margin-top: 10px">
+            <div class="col-lg-2">
+                {% for conference_level in conference_levels %}
+                    {% if conference.conference_level.pk == conference_level.pk %}<input type="text" class="form-control" value="{{ conference_level.name }}" readonly>{% endif %}
+                {% endfor %}
+            </div>
+            <div class="col-lg-4">
+                <input type="text" placeholder="Title" name="conference_titles[]" class="form-control" value="{{ conference.title }}" readonly>
+            </div>
+            <div class="col-lg-2">
+                <input type="date" name="conference_dates[]" class="form-control" value="{{ conference.date|date:'Y-m-d' }}" readonly>
+            </div>
+            <div class="col-lg-4">
+                <input type="text" placeholder="Venue" name="conference_venues[]" class="form-control" value="{{ conference.venue }}" readonly>
+            </div>
+        </div>
+    {% endfor %}
+</div>

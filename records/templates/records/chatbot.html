@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        /* CSS Chatbot */
+        .exit-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10001;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* CSS for the modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* CSS for the chatbot content inside the modal */
+        .modal-overlay iframe {
+            width: 80%;
+            height: 80%;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+        }
+
+        .chatbot-toggler {
+            position: fixed;
+            bottom: 30px;
+            right: 35px;
+            outline: none;
+            border: none;
+            height: 80px;
+            width: 80px;
+            display: flex;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: gold;
+            transition: all 0.2s ease;
+        }
+
+        body.show-chatbot .chatbot-toggler {
+            transform: rotate(90deg);
+        }
+
+        .chatbot-toggler span {
+            color: #fff;
+            position: absolute;
+        }
+
+        .chatbot-toggler span:last-child,
+        body.show-chatbot .chatbot-toggler span:first-child {
+            opacity: 0;
+        }
+
+        body.show-chatbot .chatbot-toggler span:last-child {
+            opacity: 1;
+        }
+
+        .chatbot {
+            position: fixed;
+            right: 35px;
+            bottom: 90px;
+            width: 420px;
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.5);
+            transform-origin: bottom right;
+            box-shadow: 0 0 128px 0 rgba(0,0,0,0.1),
+                        0 32px 64px -48px rgba(0,0,0,0.5);
+            transition: all 0.1s ease;
+        }
+
+        body.show-chatbot .chatbot {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        .chatbot header {
+            padding: 16px 0;
+            position: relative;
+            text-align: center;
+            color: #fff;
+            background: gold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chatbot header span {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            display: none;
+            cursor: pointer;
+            transform: translateY(-50%);
+        }
+
+        header h2 {
+            font-size: 1.4rem;
+        }
+
+        .chatbot .chatbox {
+            overflow-y: auto;
+            height: 410px;
+            padding: 30px 20px 100px;
+        }
+
+        .chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
+            background: #fff;
+            border-radius: 25px;
+        }
+
+        .chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 25px;
+        }
+
+        .chatbox .chat {
+            display: flex;
+            list-style: none;
+        }
+
+        .chatbox .outgoing {
+            margin: 20px 0;
+            justify-content: flex-end;
+        }
+
+        .chatbox .incoming span {
+            width: 32px;
+            height: 32px;
+            color: #fff;
+            cursor: default;
+            text-align: center;
+            line-height: 32px;
+            align-self: flex-end;
+            background: gold;
+            border-radius: 4px;
+            margin: 0 10px 7px 0;
+        }
+
+        .chatbox .chat p {
+            white-space: pre-wrap;
+            padding: 12px 16px;
+            border-radius: 10px 10px 0 10px;
+            max-width: 75%;
+            color: #fff;
+            font-size: 0.95rem;
+            background: gold;
+        }
+
+        .chatbox .incoming p {
+            border-radius: 10px 10px 10px 0;
+        }
+
+        .chatbox .chat p.error {
+            color: #721c24;
+            background: #f8d7da;
+        }
+
+        .chatbox .incoming p {
+            color: #000;
+            background: #f2f2f2;
+        }
+
+        .chatbot .chat-input {
+            display: flex;
+            gap: 5px;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: #fff;
+            padding: 3px 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input textarea {
+            height: 55px;
+            width: 100%;
+            border: none;
+            outline: none;
+            resize: none;
+            max-height: 180px;
+            padding: 15px 15px 15px 0;
+            font-size: 0.95rem;
+        }
+
+        .chat-input span {
+            align-self: flex-end;
+            color: gold;
+            cursor: pointer;
+            height: 55px;
+            display: flex;
+            align-items: center;
+            visibility: hidden;
+            font-size: 1.35rem;
+        }
+
+        .chat-input textarea:valid ~ span {
+            visibility: visible;
+        }
+
+        @media (max-width: 490px) {
+            .chatbot-toggler {
+                right: 20px;
+                bottom: 20px;
+            }
+
+            .chatbot {
+                right: 0;
+                bottom: 0;
+                height: 100%;
+                border-radius: 0;
+                width: 100%;
+            }
+
+            .chatbot .chatbox {
+                height: 90%;
+                padding: 25px 15px 100px;
+            }
+
+            .chatbot .chat-input {
+                padding: 5px 15px;
+            }
+
+            .chatbot header span {
+                display: block;
+            }
+        }
+
+        .website-title {
+            font-size: 42px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .website-description {
+            margin-left: -10px;
+        }
+
+        .chatbot-popup {
+            position: fixed;
+            bottom: 120px;
+            right: 20px;
+            width: 300px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chatbot-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .chatbot-messages {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+
+        .chatbot-input {
+            width: calc(100% - 22px);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Fonts Link For Icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+
+    <button class="chatbot-toggler" {% if is_subscribed == 0 %}disabled{% endif %} data-is-subscribed="{{ is_subscribed }}">
+        <span class="material-symbols-rounded">mode_comment</span>
+        <span class="material-symbols-outlined">close</span>
+    </button>
+    
+
+    <script>
+        const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
+    
+        chatbotTogglers.forEach(chatbotToggler => {
+          chatbotToggler.addEventListener('click', async (event) => {
+            const isSubscribed = chatbotToggler.getAttribute('data-is-subscribed');
+    
+            if (isSubscribed == 0) {
+              alert("You need to login or have an active subscription to access this feature.");
+              return;
+            }
+    
+            event.preventDefault();
+    
+            const email = "{{ user.email }}";  // Replace with actual user email
+            // const password = "claro1234";      // Replace with actual password or fetch it securely
+    
+            // Create modal overlay
+            const modalOverlay = document.createElement('div');
+            modalOverlay.classList.add('modal-overlay');
+    
+            const iframe = document.createElement('iframe');
+            iframe.src = `http://localhost:3000/?email=${email}`; // Load URL with email and password in query params
+            iframe.setAttribute('frameborder', '0');
+            iframe.style.width = '80%';
+            iframe.style.height = '80%';
+            iframe.style.borderRadius = '10px';
+    
+            modalOverlay.appendChild(iframe);
+            document.body.appendChild(modalOverlay);
+    
+            // Show modal
+            modalOverlay.style.display = 'flex';
+            modalOverlay.style.justifyContent = 'center';
+            modalOverlay.style.alignItems = 'center';
+            modalOverlay.style.position = 'fixed';
+            modalOverlay.style.top = '0';
+            modalOverlay.style.left = '0';
+            modalOverlay.style.width = '100%';
+            modalOverlay.style.height = '100%';
+            modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modalOverlay.style.zIndex = '1000';
+    
+            // Close modal on click outside of the iframe
+            modalOverlay.addEventListener('click', (event) => {
+              if (event.target === modalOverlay) {
+                document.body.removeChild(modalOverlay);
+              }
+            });
+          });
+        });
+    </script>
+    
+    <!-- <script>
+        const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
+ 
+     chatbotTogglers.forEach(chatbotToggler => {
+     chatbotToggler.addEventListener('click', async (event) => {
+         const isSubscribed = chatbotToggler.getAttribute('data-is-subscribed');
+ 
+         if (isSubscribed == 0) {
+         alert("You need to login or have an active subscription to access this feature.");
+         return;
+         }
+ 
+         event.preventDefault();
+ 
+         const email = "{{ user.email }}";  // Replace with actual user email
+         
+         // Fetch password from backend using email
+         try {
+         const response = await fetch(`http://localhost:8000/api/get-password/?email=${email}`, {
+             method: 'GET',
+             headers: {
+             'Content-Type': 'application/json',
+             },
+         });
+ 
+         if (response.ok) {
+             const data = await response.json();
+             const password = data.password;  // Get hashed password from the response
+ 
+             // Proceed with opening the modal
+             const modalOverlay = document.createElement('div');
+             modalOverlay.classList.add('modal-overlay');
+ 
+             const iframe = document.createElement('iframe');
+             iframe.src = `http://localhost:3000/?email=${email}&password=${password}`;
+             iframe.setAttribute('frameborder', '0');
+             iframe.style.width = '80%';
+             iframe.style.height = '80%';
+             iframe.style.borderRadius = '10px';
+ 
+             modalOverlay.appendChild(iframe);
+             document.body.appendChild(modalOverlay);
+ 
+             modalOverlay.style.display = 'flex';
+             modalOverlay.style.justifyContent = 'center';
+             modalOverlay.style.alignItems = 'center';
+             modalOverlay.style.position = 'fixed';
+             modalOverlay.style.top = '0';
+             modalOverlay.style.left = '0';
+             modalOverlay.style.width = '100%';
+             modalOverlay.style.height = '100%';
+             modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+             modalOverlay.style.zIndex = '1000';
+ 
+             // Close modal on click outside of iframe
+             modalOverlay.addEventListener('click', (event) => {
+             if (event.target === modalOverlay) {
+                 document.body.removeChild(modalOverlay);
+             }
+             });
+         } else {
+             alert('Error fetching password');
+         }
+         } catch (error) {
+         console.error('Error fetching password:', error);
+         }
+     });
+     });
+ 
+     </script> -->
+    
+</body>
+</html>

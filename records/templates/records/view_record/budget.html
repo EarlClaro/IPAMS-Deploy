@@ -1,0 +1,28 @@
+<div id="budget-rows">
+    <div class="row ml-1 mb-1">
+        <div class="col-lg-3">
+            <div class="label">Type:</div>
+        </div>
+        <div class="col-lg-4">
+            <div class="label">Budget Allocation:</div>
+        </div>
+        <div class="col-lg-5">
+            <div class="label">Funding Source:</div>
+        </div>
+    </div>
+    {% for budget in record.budget_set.all %}
+        <div class="row ml-1" id="budget-1">
+            <div class="col-lg-3">
+                {% for budget_type in budget_types %}
+                    {% if budget.budget_type.pk == budget_type.pk %}<input type="text" name="budget_allocations[]" class="form-control" value="{{ budget_type.name }}" readonly>{% endif %}
+                {% endfor %}
+            </div>
+            <div class="col-lg-4">
+                <input type="number" name="budget_allocations[]" class="form-control" value="{{ budget.budget_allocation }}" readonly>
+            </div>
+            <div class="col-lg-5">
+                <input type="text" name="funding_sources[]" class="form-control" value="{{ budget.funding_source }}" readonly>
+            </div>
+        </div>
+    {% endfor %}
+    </div>

@@ -1,0 +1,38 @@
+/* subscription.css */
+
+/* Style for the main content */
+main {
+    margin: 50px auto;
+    max-width: 600px;
+    padding: 0 20px;
+    text-align: center;
+}
+
+/* Style for the email input */
+input[type="email"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Style for the subscribe button */
+button[type="submit"] {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Additional styling to fit the theme */
+/* You can add more styles here as needed */
+/* For example, you can adjust font sizes, colors, and margins */

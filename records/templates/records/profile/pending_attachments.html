@@ -1,0 +1,236 @@
+{% extends 'ipams/base.html' %}
+
+{% block footer %}
+<style>
+    .approve-btn {
+        cursor: pointer;
+        color: #007bff; /* Blue color, you can change this */
+        text-decoration: underline;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+    var pendingAttachmentsTbl;
+
+    pendingAttachmentsTbl = $("#tbl-pending-attachments").DataTable({
+        "ajax": {
+            "headers": { "X-CSRFToken": '{{ csrf_token }}' },
+            "type": "post",
+            "url": "/records/pendingAttachments/"  // Adjust the URL endpoint
+        },
+        "deferRender": true,
+        "scrollX": true,
+        "responsive": true,
+        "columns": [
+    {
+        "data": "filename",
+        "render": function (data, type, row) {
+            return '<a href="' + row.file + '">' + row.filename + '</a>';
+        }
+    },
+    { "data": "record" },
+    { "data": "date_uploaded" },
+    { "data": "version" },
+    {
+        "data": "is_approved",
+        "render": function (data, type, row) {
+            // Render is_approved as "Pending" or a badge
+            if (data === 1) {
+                return '<span class="badge badge-warning">Approved</span>';
+            } else {
+                return '<span class="badge badge-warning">Pending</span>';
+            }
+        }
+    },
+    {
+        "data": "is_approved",
+        "render": function (data, type, row) {
+            return '<span class="approve-btn" onclick="approveRecord(' + row.id + ')">Approve</span>';
+        }
+    }
+],
+
+        "order": [[0, "desc"]]
+    });
+});
+
+function showCommentModal(checkedUploadId) {
+    $('#commentModal').modal('show');
+    $('#commentModalCheckedUploadId').val(checkedUploadId);
+}
+
+function approveRecord(checkedUploadId) {
+    // Store the checked_upload_id in a hidden input field in the modal
+    $('#commentModalRecordId').val(checkedUploadId);
+
+    // Show the Bootstrap modal for entering comments
+    $('#commentModal').modal('show');
+}
+
+function submitApproval() {
+    var checkedUploadId = $('#commentModalRecordId').val();
+    var comment = $('#commentInput').val();
+
+    if (comment.trim() === '') {
+        alert('Please enter a comment before approving.');
+        return;
+    }
+
+    // Close the Bootstrap modal
+    $('#commentModal').modal('hide');
+
+    // Proceed with the record approval
+    $.ajax({
+        type: 'POST',
+        url: '/records/approved-attachments/' + checkedUploadId + '/',
+        data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            comment: comment
+        },
+        success: function (data) {
+            console.log('Attachment Approved:', data);
+
+            // Show success message with SweetAlert
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Attachment approved successfully.',
+                timer: 3000, // Adjust the timer as needed
+                showConfirmButton: false
+            });
+
+            // Refresh the DataTable after a short delay (adjust as needed)
+            setTimeout(function() {
+                location.reload();
+            }, 3000);
+        },
+        error: function (error) {
+            console.error('Error:', error);
+            alert('Error approving record. Please try again.');
+        }
+    });
+}
+
+function declineApproval() {
+    var checkedUploadId = $('#commentModalRecordId').val();
+    var comment = $('#commentInput').val();
+
+    if (comment.trim() === '') {
+        alert('Please enter a comment before declining.');
+        return;
+    }
+
+    // Close the Bootstrap modal
+    $('#commentModal').modal('hide');
+
+    // Proceed with the record decline
+    $.ajax({
+        type: 'POST',
+        url: '/records/declined-attachments/' + checkedUploadId + '/',
+        data: {
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            comment: comment
+        },
+        success: function (data) {
+            console.log('Attachment Declined:', data);
+
+            // Show success message with SweetAlert
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Attachment declined successfully.',
+                timer: 3000, // Adjust the timer as needed
+                showConfirmButton: false
+            });
+
+            // Refresh the DataTable after a short delay (adjust as needed)
+            setTimeout(function() {
+                location.reload();
+            }, 3000);
+        },
+        error: function (error) {
+            console.error('Error:', error);
+            alert('Error declining record. Please try again.');
+        }
+    });
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<!-- Modal for entering comments -->
+<div class="modal fade" id="commentModal" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="commentModalLabel" style="color: black;">Enter Comment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Comment Input Field -->
+                <div class="form-group">
+                    <label for="commentInput">Comment:</label>
+                    <textarea class="form-control" id="commentInput" rows="4"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="commentModalRecordId">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" onclick="declineApproval()">Decline</button>
+                <button type="button" class="btn btn-primary" onclick="submitApproval()">Approve</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table for Pending Attachments -->
+<div class="container">
+    <div>
+        <div class="main-header base-bg-secondary bordered-radius-top">
+        </div>
+        <div class="main-content">
+            <div class="row mb-2">
+                <div class="col-12 h3">Pending Attachments</div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <table id="tbl-pending-attachments" class="table table-striped table-bordered table-condensed" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th>Filename</th>
+                                <th>Record</th>
+                                <th>Date Uploaded</th>
+                                <th>Version</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Add rows dynamically based on data -->
+                            {% for record_upload in record_uploads %}
+                                {% if record_upload.is_approved == 0 and record_upload.is_declined == 0 %}
+                                    <tr>
+                                        <td>
+                                            <a href="{% url 'file_management:download_record_file' record_upload.id %}" download="{{ record_upload.filename }}">{{ record_upload.filename }}</a>
+                                        </td>
+                                        <td>{{ record_upload.record }}</td>
+                                        <td>{{ record_upload.date_uploaded }}</td>
+                                        <td>{{ record_upload.version }}</td>
+                                        <td>{{ record_upload.is_approved }}</td>
+                                        <td>
+                                            <span class="approve-btn" onclick="approveRecord({{ record_upload.id }})">Approve</span>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

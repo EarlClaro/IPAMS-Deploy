@@ -1,0 +1,13 @@
+{% block content %}
+  <div>
+    <h1>DOCX Viewer</h1>
+    <p>File: {{ record_upload.file.name }}</p>
+    {% if text_content %}
+      {% for paragraph in text_content %}
+        <p>{{ paragraph }}</p>
+      {% endfor %}
+    {% else %}
+      <p>No content available.</p>
+    {% endif %}
+  </div>
+{% endblock %}

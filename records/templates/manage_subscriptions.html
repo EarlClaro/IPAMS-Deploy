@@ -1,0 +1,21 @@
+<!-- manage_subscriptions.html -->
+{% for subscription in subscriptions %}
+<style>
+ 
+    .editBtn:hover{
+        background-color:gold;
+        color: white;
+        padding-right: 20px;
+        
+    }
+</style>
+<tr>
+    <td>{{ subscription.plan_id }}</td>
+    <td>{{ subscription.plan_name }}</td>
+    <td>₱ {{ subscription.price }}</td>
+    <td>{{ subscription.duration_months }}</td>
+    <td>
+        <button class="editBtn" data-id="{{ subscription.plan_id }}">Edit</button>
+    </td>
+</tr>
+{% endfor %}

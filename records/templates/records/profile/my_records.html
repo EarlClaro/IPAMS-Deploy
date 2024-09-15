@@ -1,0 +1,428 @@
+{% extends 'ipams/base.html' %}
+
+{% block footer %}
+<style>
+
+  /* CSS for the exit button */
+.exit-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 10001; /* Ensure the exit button appears above the chatbot content */
+}
+
+/* CSS for the modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease; /* Smooth opacity transition */
+}
+
+.modal-hidden {
+    opacity: 0;
+    pointer-events: none; /* Disable pointer events when hidden */
+}
+
+/* CSS for the chatbot content inside the modal */
+.modal-overlay iframe {
+    width: 80%; /* Adjust the width as needed */
+    height: 80%; /* Adjust the height as needed */
+    border-radius: 10px;
+    background-color: white; /* White background for the chatbot */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
+    z-index: 10000; /* Ensure the chatbot content appears above the overlay */
+}
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        margin-top: 60px !important;
+    }
+
+    .dataTables_wrapper .dataTables_info {
+        margin-top: 60px !important;
+    }
+
+    /* Import Google font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.chatbot-toggler {
+  position: fixed;
+  bottom: 30px;
+  right: 35px;
+  outline: none;
+  border: none;
+  height: 80px;
+  width: 80px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: gold;
+  transition: all 0.2s ease;
+}
+body.show-chatbot .chatbot-toggler {
+  transform: rotate(90deg);
+}
+.chatbot-toggler span {
+  color: #fff;
+  position: absolute;
+}
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child  {
+  opacity: 0;
+}
+body.show-chatbot .chatbot-toggler span:last-child {
+  opacity: 1;
+}
+.chatbot {
+  position: fixed;
+  right: 35px;
+  bottom: 90px;
+  width: 420px;
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.5);
+  transform-origin: bottom right;
+  box-shadow: 0 0 128px 0 rgba(0,0,0,0.1),
+              0 32px 64px -48px rgba(0,0,0,0.5);
+  transition: all 0.1s ease;
+}
+body.show-chatbot .chatbot {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+.chatbot header {
+  padding: 16px 0;
+  position: relative;
+  text-align: center;
+  color: #fff;
+  background: gold;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.chatbot header span {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  display: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+header h2 {
+  font-size: 1.4rem;
+}
+.chatbot .chatbox {
+  overflow-y: auto;
+  height: 410px;
+  padding: 30px 20px 100px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
+  width: 6px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
+  background: #fff;
+  border-radius: 25px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 25px;
+}
+.chatbox .chat {
+  display: flex;
+  list-style: none;
+}
+.chatbox .outgoing {
+  margin: 20px 0;
+  justify-content: flex-end;
+}
+.chatbox .incoming span {
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  cursor: default;
+  text-align: center;
+  line-height: 32px;
+  align-self: flex-end;
+  background: gold;
+  border-radius: 4px;
+  margin: 0 10px 7px 0;
+}
+.chatbox .chat p {
+  white-space: pre-wrap;
+  padding: 12px 16px;
+  border-radius: 10px 10px 0 10px;
+  max-width: 75%;
+  color: #fff;
+  font-size: 0.95rem;
+  background: gold;
+}
+.chatbox .incoming p {
+  border-radius: 10px 10px 10px 0;
+}
+.chatbox .chat p.error {
+  color: #721c24;
+  background: #f8d7da;
+}
+.chatbox .incoming p {
+  color: #000;
+  background: #f2f2f2;
+}
+.chatbot .chat-input {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  padding: 3px 20px;
+  border-top: 1px solid #ddd;
+}
+.chat-input textarea {
+  height: 55px;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  max-height: 180px;
+  padding: 15px 15px 15px 0;
+  font-size: 0.95rem;
+}
+.chat-input span {
+  align-self: flex-end;
+  color: gold;
+  cursor: pointer;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  visibility: hidden;
+  font-size: 1.35rem;
+}
+.chat-input textarea:valid ~ span {
+  visibility: visible;
+}
+@media (max-width: 490px) {
+  .chatbot-toggler {
+    right: 20px;
+    bottom: 20px;
+  }
+  .chatbot {
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 0;
+    width: 100%;
+  }
+  .chatbot .chatbox {
+    height: 90%;
+    padding: 25px 15px 100px;
+  }
+  .chatbot .chat-input {
+    padding: 5px 15px;
+  }
+  .chatbot header span {
+    display: block;
+  }
+}
+	.website-title{
+        font-size: 42px;
+        font-weight: bold;
+		line-height: 1;
+    }
+
+	.website-description{
+		margin-left: -10px;
+	}
+
+	.chatbot-popup {
+	position: fixed;
+	bottom: 120px;
+	right: 20px;
+	width: 300px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 10px;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	.chatbot-header {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	}
+
+	.chatbot-messages {
+	height: 200px;
+	overflow-y: auto;
+	border: 1px solid #ccc;
+	padding: 5px;
+	margin-bottom: 10px;
+	}
+
+	.chatbot-input {
+	width: calc(100% - 22px);
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin-right: 10px;
+	}
+</style>
+
+<script>
+    $(document).ready(function () {
+        function getAllMyRecords() {
+            var userRecordsTbl;
+            userRecordsTbl = $("#tbl-user-records").DataTable({
+                "ajax": {
+                    "headers": { "X-CSRFToken": '{{ csrf_token }}' },
+                    "url": "/records/user/getMyRecordsList/",
+                    "type": "post",
+                },
+                "deferRender": true,
+                "scrollX": true,
+                "responsive": true,
+                "columnDefs": [
+                    {
+                        "targets": [0],
+                        "visible": false,
+                        "searchable": false
+                    },
+                ],
+                "order": [[0, "desc"]]
+            });
+        }
+        getAllMyRecords();
+    });
+
+    function checkStatusClick(role, recordId) {
+        $.ajax({
+            headers: { "X-CSRFToken": '{{ csrf_token }}' },
+            type: "post",
+            data: { role: role, recordId: recordId },
+            url: "/records/user/getComment/",
+            success: function (data) {
+                if (data && data.status) {
+                    comments = "";
+                    for (var i = 0; i < data["date_created"].length; i++) {
+                        comments += '<div class="card" style="background-color:#dbdbdb; margin-bottom:10px;"><div class="card-body"><p class="card-text">' + data["comment"][i] + '</p><h6 class="card-subtitle mb-2 text-muted">' + data["date_created"][i] + '</h6></div></div>';
+                    }
+                    $("#checked-status-comment").html(comments);
+                    $("#checked-status-title").html(data.status);
+                    $("#checked-status-checkedby").val(data.username);
+                }
+                else {
+                    $("#checked-status-title").html('');
+                    $("#checked-status-checkedby").val('');
+                    $("#checked-status-comment").html('<div class="text-danger">Record has not been evaluated by user</div>');
+                }
+                $("#checked-status-modal").modal("show");
+            },
+            error: function (xhr, status, error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    function toggleChatbotPopup() {
+        var popup = document.getElementById("chatbot-popup");
+        if (popup.style.display === "none" || popup.style.display === "") {
+            popup.style.display = "block";
+        } else {
+            popup.style.display = "none";
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+
+
+<!-- Existing content -->
+<div class="container">
+    <div class="main-header base-bg-secondary bordered-radius-top">
+    </div>
+    <div class="main-content">
+        <div class="row mb-2">
+            <div class="col-12 h3" id="record-type">User Records</div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table id="tbl-user-records" class="table table-striped table-bordered table-condensed" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>RESEARCH TITLE</th>
+                            <th>CHECKED BY ADVISER</th>
+                            <th>CHECKED BY KTTO</th>
+                            <th>CHECKED BY RDCO</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+				<!-- Chatbot -->
+				{% if user.is_subscribed == 1 %}
+    {% if user.role.id > 0 %}
+        {% include 'records/chatbot.html' with is_subscribed=1 %}
+    {% endif %}
+{% else %}
+    {% include 'records/chatbot.html' %}
+{% endif %}
+
+        
+<!-- Modal -->
+<div class="modal fade" id="checked-status-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header base-bg-secondary">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row ml-3">
+                    <h5 class="text-primary">Evaluation - <span class="modal-title" id="checked-status-title"></span></h5>
+                    <hr style="border-top: 2px solid black;">
+                </div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="checked-status-checkedby">Checked By: </label><input id="checked-status-checkedby" type="text" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label for="checked-status-comment">Comments: </label>
+                            <div id="checked-status-comment" class="form-group"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

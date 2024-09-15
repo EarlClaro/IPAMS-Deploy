@@ -1,0 +1,483 @@
+{% extends 'ipams/base.html' %}
+{% load crispy_forms_tags %}
+{% block head %}
+<style>
+
+.navbar-tabs{
+	display:none;
+}
+
+.upload-card{
+	padding: 20px 10px;
+ 	box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
+ 	border-radius: 15px;
+}
+
+hr{
+	border-top: 1px solid black !important;
+}
+/* Chatbot Button */
+.chatbot-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #8B0000;
+    color: #FFD700;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+    /* Import Google font - Poppins */
+	@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.chatbot-toggler {
+  position: fixed;
+  bottom: 30px;
+  right: 35px;
+  outline: none;
+  border: none;
+  height: 80px;
+  width: 80px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: gold;
+  transition: all 0.2s ease;
+}
+body.show-chatbot .chatbot-toggler {
+  transform: rotate(90deg);
+}
+.chatbot-toggler span {
+  color: #fff;
+  position: absolute;
+}
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child  {
+  opacity: 0;
+}
+body.show-chatbot .chatbot-toggler span:last-child {
+  opacity: 1;
+}
+.chatbot {
+  position: fixed;
+  right: 35px;
+  bottom: 90px;
+  width: 420px;
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.5);
+  transform-origin: bottom right;
+  box-shadow: 0 0 128px 0 rgba(0,0,0,0.1),
+              0 32px 64px -48px rgba(0,0,0,0.5);
+  transition: all 0.1s ease;
+}
+body.show-chatbot .chatbot {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+.chatbot header {
+  padding: 16px 0;
+  position: relative;
+  text-align: center;
+  color: #fff;
+  background: gold;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.chatbot header span {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  display: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+header h2 {
+  font-size: 1.4rem;
+}
+.chatbot .chatbox {
+  overflow-y: auto;
+  height: 410px;
+  padding: 30px 20px 100px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
+  width: 6px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
+  background: #fff;
+  border-radius: 25px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 25px;
+}
+.chatbox .chat {
+  display: flex;
+  list-style: none;
+}
+.chatbox .outgoing {
+  margin: 20px 0;
+  justify-content: flex-end;
+}
+.chatbox .incoming span {
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  cursor: default;
+  text-align: center;
+  line-height: 32px;
+  align-self: flex-end;
+  background: gold;
+  border-radius: 4px;
+  margin: 0 10px 7px 0;
+}
+.chatbox .chat p {
+  white-space: pre-wrap;
+  padding: 12px 16px;
+  border-radius: 10px 10px 0 10px;
+  max-width: 75%;
+  color: #fff;
+  font-size: 0.95rem;
+  background: gold;
+}
+.chatbox .incoming p {
+  border-radius: 10px 10px 10px 0;
+}
+.chatbox .chat p.error {
+  color: #721c24;
+  background: #f8d7da;
+}
+.chatbox .incoming p {
+  color: #000;
+  background: #f2f2f2;
+}
+.chatbot .chat-input {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  padding: 3px 20px;
+  border-top: 1px solid #ddd;
+}
+.chat-input textarea {
+  height: 55px;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  max-height: 180px;
+  padding: 15px 15px 15px 0;
+  font-size: 0.95rem;
+}
+.chat-input span {
+  align-self: flex-end;
+  color: gold;
+  cursor: pointer;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  visibility: hidden;
+  font-size: 1.35rem;
+}
+.chat-input textarea:valid ~ span {
+  visibility: visible;
+}
+@media (max-width: 490px) {
+  .chatbot-toggler {
+    right: 20px;
+    bottom: 20px;
+  }
+  .chatbot {
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 0;
+    width: 100%;
+  }
+  .chatbot .chatbox {
+    height: 90%;
+    padding: 25px 15px 100px;
+  }
+  .chatbot .chat-input {
+    padding: 5px 15px;
+  }
+  .chatbot header span {
+    display: block;
+  }
+}
+	.website-title{
+        font-size: 42px;
+        font-weight: bold;
+		line-height: 1;
+    }
+
+	.website-description{
+		margin-left: -10px;
+	}
+
+	.chatbot-popup {
+	position: fixed;
+	bottom: 120px;
+	right: 20px;
+	width: 300px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 10px;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	.chatbot-header {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	}
+
+	.chatbot-messages {
+	height: 200px;
+	overflow-y: auto;
+	border: 1px solid #ccc;
+	padding: 5px;
+	margin-bottom: 10px;
+	}
+
+	.chatbot-input {
+	width: calc(100% - 22px);
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin-right: 10px;
+	}
+
+    /* Chatbot Button */
+.chatbot-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #8B0000;
+    color: #FFD700;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+/* Chatbot Popup */
+.chatbot-popup {
+    position: fixed;
+    bottom: 150px;
+    right: 20px;
+    width: 320px;
+    background-color: #FFD700;
+    border: 1px solid #8B0000;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+}
+
+/* Chatbot Header */
+.chatbot-header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #8B0000;
+    margin-bottom: 20px;
+}
+
+/* Chatbot Messages */
+.chatbot-messages {
+    height: 200px;
+    overflow-y: auto;
+    border: 1px solid #8B0000;
+    padding: 10px;
+    margin-bottom: 20px;
+    background-color: #FFDAB9;
+    border-radius: 5px;
+}
+
+/* Chatbot Input */
+.chatbot-input {
+    width: calc(100% - 24px);
+    padding: 10px;
+    border: 1px solid #8B0000;
+    border-radius: 5px;
+    margin-right: 10px;
+    font-size: 16px;
+    color: #8B0000;
+}
+
+/* Chatbot Input Focus */
+.chatbot-input:focus {
+    outline: none;
+}
+    }
+    /* Adjusting the positioning of the chatbot popup */
+    .chatbot-popup {
+        position: fixed;
+        bottom: 140px; /* Adjust as needed */
+        right: 20px;
+        z-index: 9999; /* Ensure it's above other elements */
+        display: none; /* Initially hidden */
+        width: 300px; /* Adjust width as needed */
+        background-color: #ffffff;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* CSS for the exit button */
+.exit-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 10001; /* Ensure the exit button appears above the chatbot content */
+}
+
+/* CSS for the modal overlay */
+.modal-overlay {
+  position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease; /* Smooth opacity transition */
+    z-index: 9999; /* Ensure the overlay is above other elements */
+    pointer-events: auto; /* Enable pointer events */
+}
+
+.modal-hidden {
+    opacity: 0;
+    pointer-events: none; /* Disable pointer events when hidden */
+}
+
+
+/* CSS for the chatbot content inside the modal */
+.modal-overlay iframe {
+    width: 80%; /* Adjust the width as needed */
+    height: 80%; /* Adjust the height as needed */
+    border-radius: 10px;
+    background-color: white; /* White background for the chatbot */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
+    z-index: 10000; /* Ensure the chatbot content appears above the overlay */
+}
+</style>
+{% endblock %}
+{% block footer %}
+    <script>
+        //------------------------importing spreadsheet----------------------------------------------
+        $("#btn-import").on("click", function(){
+            if($("#file-import").get(0).files.length>0){
+                Swal.fire({
+                  title: 'Import Spreadsheet',
+                  html: 'importing... ',
+                  allowOutsideClick: false,
+                  onBeforeOpen: () => {
+                    Swal.showLoading()
+                    $("#form-import").submit();
+                  },
+                });
+            }
+            else{
+                Swal.fire({
+                  type: 'warning',
+                  title: 'No File Chosen',
+                  showConfirmButton: true,
+                })
+            }
+        });
+
+        //--------------------------adjust datatables header--------------------------------
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+           $($.fn.dataTable.tables(true)).DataTable()
+              .columns.adjust();
+        });
+
+     
+    </script>
+				<!-- Chatbot -->
+				{% if user.is_subscribed == 1 %}
+    {% if user.role.id > 0 %}
+        {% include 'records/chatbot.html' with is_subscribed=1 %}
+    {% endif %}
+{% else %}
+    {% include 'records/chatbot.html' %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="main-header base-bg-secondary bordered-radius-top"></div>
+        
+        <section id="home-upload" class="main-content">
+            <h2 class="ml-3">Import Records</h2>
+            <hr>
+            <h4 class="ml-3">Instructions - Migrate records with spread sheet</h1>
+            <div class="row">
+                <div class="col-lg-8 mt-1">
+                    <ol>
+                        <li>Follow the data entry format which can be viewed <a href="{% url 'records-download-format' %}">HERE</a>.</li>
+                        <li>When adding a new entry to a section, simply duplicate the record row and replace the existing section with the new entry.</li>
+                        <li>The migration stops when they read a merged cell that contains END OF RECORDS.</li>
+                        <li>After the format is thoroughly followed, Press GENERATE to add the records.</li>
+                    </ol>
+                </div>
+                
+                <div class="col-lg-7 ml-3">    
+                    <form id="form-import" action="{% url 'records-upload' %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="customFile">
+                            <label class="custom-file-label" for="customFile">Choose file</label>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 d-flex " style="margin-top:20px">
+                                <button id="btn-import" type="button" class="btn base-btn base-bg-secondary" style="">Generate</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>  
+                <hr>
+                <div class="col-lg-11 ml-3">
+                    <label>Logs: </label>
+                    <textarea rows="5" class="form-control" value="Logs" style="width: 100%">{{ logs }}</textarea>    
+                </div>
+                
+            </div>
+        </section>
+    </div>
+{% endblock %}

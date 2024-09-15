@@ -1,0 +1,72 @@
+.container-fluid {
+    display: flex;
+}
+  
+.title {
+    background-color: #FFF4C5;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 25px;
+}
+
+.logo img{
+    margin: auto;
+    height: 350px; 
+    width: 375px; 
+}
+
+.title h1{
+    text-align: center;
+}
+
+
+.form {
+    margin: auto;
+    background-color: white;
+    text-align: center;
+    align-items: center;
+}
+
+.form p{
+    max-width:50%;
+    margin: auto;
+}
+
+.inputField{
+    margin: auto;
+}
+
+.createAcc{
+    text-align: end;
+    font-size: large;
+}
+
+.text-maroon{
+    border: none;
+    background-color: white;
+    color: #841818;
+}
+
+.btn-login {
+    background-color: #841818;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 30px;
+    width: 50%;
+    font-size: 25px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-login:hover {
+    background-color: #ad2d2d;
+}
+
+.l-grid {
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+    align-items: right;
+  }

@@ -1,0 +1,44 @@
+<div class="authors-category-data ml-4 mt-2">
+
+    <!-------------------------------   AUTHOR   ------------------------------->
+
+    <div id="author-rows">
+        <div class="text-bold">Authors:</div>
+            {% for author in record.author_set.all %}
+                <div class="row mt-1" id="author-{{ author.pk }}">
+                    <div class="col">
+                        <input name="author_names[]" placeholder="Name" class="form-control" type="text" value="{{ author.name }}" readonly>
+                    </div>
+                    <div class="col">
+                        {% for author_role in author_roles %}
+                            {% if author.author_role.pk == author_role.pk %} <input name="author_roles[]" class="form-control" type="text" value="{{ author_role.name }}" readonly> {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+    </div>
+
+    <!-----------------------  CATEGORIES  ------------------------------->
+
+    <div class="row mt-2 ml-1">
+        <div>
+            <div class="label">Classification:</div>
+        </div>
+        <div class="col-4">
+            {% for classification in classifications %}
+                {% if record.classification.pk == classification.pk %} <input name="classification" class="form-control" value="{{ classification.name }}" type="text" readonly> {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="row" style="margin-top:10px; margin-left: 5px" >
+        <div class="col-1.5">
+            <div class="label">PSCED:</div>
+        </div>
+        <div class="col-4" style="margin-left: 50px;">
+                {% for psced_classification in psced_classifications %}
+                    {% if record.psced_classification.pk == psced_classification.pk %}<input value="{{ psced_classification.name }}" name="psed" class="form-control" readonly>{% endif %}
+                {% endfor %}
+        </div>
+    </div>
+    
+</div>

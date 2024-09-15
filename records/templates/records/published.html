@@ -1,0 +1,714 @@
+
+{% extends 'ipams/base.html' %}
+{% load crispy_forms_tags %}
+{% block head %}
+<style>
+
+	/* CSS for the exit button */
+.exit-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 10001; /* Ensure the exit button appears above the chatbot content */
+}
+
+/* CSS for the modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease; /* Smooth opacity transition */
+}
+
+.modal-hidden {
+    opacity: 0;
+    pointer-events: none; /* Disable pointer events when hidden */
+}
+
+
+/* CSS for the chatbot content inside the modal */
+.modal-overlay iframe {
+    width: 80%; /* Adjust the width as needed */
+    height: 80%; /* Adjust the height as needed */
+    border-radius: 10px;
+    background-color: white; /* White background for the chatbot */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Drop shadow effect */
+    z-index: 10000; /* Ensure the chatbot content appears above the overlay */
+}
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        margin-top: 60px !important
+	}
+
+    .dataTables_wrapper .dataTables_info{
+
+        margin-top: 60px !important
+    }
+
+	 /* Define the hover effect */
+	 .btn:hover {
+        background-color: maroon; /* Change this to the desired hover color */
+        color: white; /* Change this to the desired text color */
+    }
+
+	/* Import Google font - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+.chatbot-toggler {
+  position: fixed;
+  bottom: 30px;
+  right: 35px;
+  outline: none;
+  border: none;
+  height: 80px;
+  width: 80px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: gold;
+  transition: all 0.2s ease;
+}
+body.show-chatbot .chatbot-toggler {
+  transform: rotate(90deg);
+}
+.chatbot-toggler span {
+  color: #fff;
+  position: absolute;
+}
+.chatbot-toggler span:last-child,
+body.show-chatbot .chatbot-toggler span:first-child  {
+  opacity: 0;
+}
+body.show-chatbot .chatbot-toggler span:last-child {
+  opacity: 1;
+}
+.chatbot {
+  position: fixed;
+  right: 35px;
+  bottom: 90px;
+  width: 420px;
+  background: #fff;
+  border-radius: 15px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.5);
+  transform-origin: bottom right;
+  box-shadow: 0 0 128px 0 rgba(0,0,0,0.1),
+              0 32px 64px -48px rgba(0,0,0,0.5);
+  transition: all 0.1s ease;
+}
+body.show-chatbot .chatbot {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+.chatbot header {
+  padding: 16px 0;
+  position: relative;
+  text-align: center;
+  color: #fff;
+  background: gold;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.chatbot header span {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  display: none;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+header h2 {
+  font-size: 1.4rem;
+}
+.chatbot .chatbox {
+  overflow-y: auto;
+  height: 410px;
+  padding: 30px 20px 100px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar {
+  width: 6px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-track {
+  background: #fff;
+  border-radius: 25px;
+}
+.chatbot :where(.chatbox, textarea)::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 25px;
+}
+.chatbox .chat {
+  display: flex;
+  list-style: none;
+}
+.chatbox .outgoing {
+  margin: 20px 0;
+  justify-content: flex-end;
+}
+.chatbox .incoming span {
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  cursor: default;
+  text-align: center;
+  line-height: 32px;
+  align-self: flex-end;
+  background: gold;
+  border-radius: 4px;
+  margin: 0 10px 7px 0;
+}
+.chatbox .chat p {
+  white-space: pre-wrap;
+  padding: 12px 16px;
+  border-radius: 10px 10px 0 10px;
+  max-width: 75%;
+  color: #fff;
+  font-size: 0.95rem;
+  background: gold;
+}
+.chatbox .incoming p {
+  border-radius: 10px 10px 10px 0;
+}
+.chatbox .chat p.error {
+  color: #721c24;
+  background: #f8d7da;
+}
+.chatbox .incoming p {
+  color: #000;
+  background: #f2f2f2;
+}
+.chatbot .chat-input {
+  display: flex;
+  gap: 5px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: #fff;
+  padding: 3px 20px;
+  border-top: 1px solid #ddd;
+}
+.chat-input textarea {
+  height: 55px;
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  max-height: 180px;
+  padding: 15px 15px 15px 0;
+  font-size: 0.95rem;
+}
+.chat-input span {
+  align-self: flex-end;
+  color: gold;
+  cursor: pointer;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  visibility: hidden;
+  font-size: 1.35rem;
+}
+.chat-input textarea:valid ~ span {
+  visibility: visible;
+}
+@media (max-width: 490px) {
+  .chatbot-toggler {
+    right: 20px;
+    bottom: 20px;
+  }
+  .chatbot {
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 0;
+    width: 100%;
+  }
+  .chatbot .chatbox {
+    height: 90%;
+    padding: 25px 15px 100px;
+  }
+  .chatbot .chat-input {
+    padding: 5px 15px;
+  }
+  .chatbot header span {
+    display: block;
+  }
+}
+	.website-title{
+        font-size: 42px;
+        font-weight: bold;
+		line-height: 1;
+    }
+
+	.website-description{
+		margin-left: -10px;
+	}
+
+	.chatbot-popup {
+	position: fixed;
+	bottom: 120px;
+	right: 20px;
+	width: 300px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 10px;
+	box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+	}
+
+	.chatbot-header {
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 10px;
+	}
+
+	.chatbot-messages {
+	height: 200px;
+	overflow-y: auto;
+	border: 1px solid #ccc;
+	padding: 5px;
+	margin-bottom: 10px;
+	}
+
+	.chatbot-input {
+	width: calc(100% - 22px);
+	padding: 8px;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	margin-right: 10px;
+	}
+</style>
+{% endblock %}
+{% block footer %}
+<script>
+
+//-----------------------initializing datatables---------------------------------------------
+var recordsTbl;
+var filters = {
+	"year_from":"",
+	"year_to":"",
+	"ip_cb":"",
+	"commercialization_cb":"",
+	"community_cb":"",
+	"classification":"",
+	"psced_classification":"",
+	"author":"",
+	"department":"",
+	"conference":"",
+	"publication":"",
+	"budget_min":"",
+	"budget_max":"",
+	"collaborator":"",
+	"is_filtered":"false",
+};
+
+function initRecordsTbl(){
+	{% if user.role.id > 2 %}
+		if(recordsTbl){
+			recordsTbl.clear().destroy();
+		}
+		recordsTbl = $('#tbl-records').DataTable({
+			"ajax":	{
+				headers: { "X-CSRFToken": '{{ csrf_token }}' },
+				url: "{% url 'records-index' %}",
+				data: filters, 
+				dataType:"json",
+				type: "post",
+			},
+			// When deferred rendering is enabled, rather than having DataTables create all TR and TD nodes required for the table when the data is loaded, DataTables will only create the nodes required for each individual row at the time of that row being drawn on the page (these nodes are then retained in case they are needed again so they aren't created multiple times). This can give a significant performance increase, since a lot less work is done at initialisation time.
+			"deferRender": true,
+			"scrollX": true,
+			"responsive": true,
+			"order": [[ 2, "desc" ], [ 1, "asc" ]],
+			"pageLength": 15,
+			"columnDefs": [
+				{
+					//hide ID column in records table and do not allow it to be searched
+					"targets": [ 0 ],
+					"visible": false,
+					"searchable": false,
+				},
+				{
+					//hide columns from REPRESENTATIVE to TAG 3 in records table and allow search
+					"targets": [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 ],
+					"visible": false,
+					"searchable": true,
+				},
+				{ "width": "13%", "targets": 21 }, // Set the third column's width to 13% with columnDefs
+				{ "width": "13%", "targets": 22 }, // Set the fourth column's width to 13% with columnDefs
+			],
+		});
+	{% else %}
+		if(recordsTbl){
+			recordsTbl.clear().destroy();
+		}
+		recordsTbl = $('#tbl-records').DataTable({
+			"ajax":	{
+				headers: { "X-CSRFToken": '{{ csrf_token }}' },
+				url: "{% url 'records-index' %}",
+				data: filters, 
+				dataType:"json",
+				type: "post",
+			},
+			// When deferred rendering is enabled, rather than having DataTables create all TR and TD nodes required for the table when the data is loaded, DataTables will only create the nodes required for each individual row at the time of that row being drawn on the page (these nodes are then retained in case they are needed again so they aren't created multiple times). This can give a significant performance increase, since a lot less work is done at initialisation time.
+			"deferRender": true,
+			"scrollX": true,
+			"responsive": true,
+			"order": [[ 2, "desc" ], [ 1, "asc" ]],
+			"pageLength": 15,
+			"columnDefs": [
+				{
+					//hide ID column in records table and do not allow it to be searched
+					"targets": [ 0 ],
+					"visible": false,
+					"searchable": false,
+				},
+				{
+					//hide columns from REPRESENTATIVE to ABSTRACT in records table and allow search
+					"targets": [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19 ],
+					"visible": false,
+					"searchable": true,
+				},
+			],
+		});
+	{% endif %}
+}
+
+//------------------------on filter save-----------------------------------------------------
+$("#btn-filter-save").on("click", function(){
+	$("#filter-tags").html('Filters: ');
+	filters = {
+		"year_from":"{{year_from}}",
+		"year_to":"{{year_to}}",
+		"ip_cb":"",
+		"commercialization_cb":"",
+		"community_cb":"",
+		"classification":"",
+		"psced_classification":"",
+		"author":"",
+		"department":"",
+		"conference":"",
+		"publication":"",
+		"budget_min":"",
+		"budget_max":"",
+		"collaborator":"",
+		"is_filtered":"true",
+	}
+	if($("#year_cb").is(":checked")){
+		filters['year_from'] = $("#year_from").val();
+		filters['year_to']= $("#year_to").val();
+		$("#filter-tags").append('<div class="badge badge-success">Year='+filters['year_from']+' - '+filters['year_to']+'</div>&nbsp;');
+	}
+	if($("#ip_cb").is(":checked")){
+		console.log($("#ip_cb").val());
+		filters['ip_cb'] = $("#intellectual_property").text();
+		$("#filter-tags").append('<div class="badge badge-success">Tags='+filters['ip_cb']+'</div>&nbsp;');
+	}
+	if($("#commercialization_cb").is(":checked")){
+		filters['commercialization_cb'] = $("#commercialization").text();
+		$("#filter-tags").append('<div class="badge badge-success">Tags='+filters['commercialization_cb']+'</div>&nbsp;');
+	}
+	if($("#community_cb").is(":checked")){
+		filters['community_cb'] = $("#community_extension").text();
+		$("#filter-tags").append('<div class="badge badge-success">Tags='+filters['community_cb']+'</div>&nbsp;');
+	}
+	filters['classification']=$("#id_classification").val();
+	if(filters['classification']!='')
+		$("#filter-tags").append('<div class="badge badge-success">Classification='+$("#id_classification option:selected").html()+'</div>&nbsp;');
+	filters['psced_classification']=$("#id_psced_classification").val();
+	if(filters['psced_classification']!='')
+		$("#filter-tags").append('<div class="badge badge-success">PSCED Classification='+$("#id_psced_classification option:selected").html()+'</div>&nbsp;');
+	filters['department']=$("#department").val();
+	if(filters['department']!='')
+		$("#filter-tags").append('<div class="badge badge-success">Department='+filters['department']+'</div>&nbsp;');
+	if($("#author_cb").is(":checked")){
+		filters["author"]=$("#author").val();
+		$("#filter-tags").append('<div class="badge badge-success">Author='+filters['author']+'</div>&nbsp;');
+	}
+	if($("#conference_cb").is(":checked")){
+		filters["conference"]=$("#conference").val();
+		$("#filter-tags").append('<div class="badge badge-success">Conference='+filters['conference']+'</div>&nbsp;');
+	}
+	if($("#publication_cb").is(":checked")){
+		filters['publication']=$("#publication").val();
+		$("#filter-tags").append('<div class="badge badge-success">Publication='+filters['publication']+'</div>&nbsp;');
+	}
+	if($("#budget_cb").is(":checked")){
+		filters['budget_min']=$("#budget_min").val();
+		filters['budget_max']=$("#budget_max").val();
+		$("#filter-tags").append('<div class="badge badge-success">Budget='+filters['budget_min']+' - '+filters['budget_max']+'</div>&nbsp;');
+	}
+	if($("#collaborator_cb").is(":checked")){
+		filters['collaborator']=$("#collaborator").val();
+		$("#filter-tags").append('<div class="badge badge-success">Collaborator='+filters['collaborator']+'</div>&nbsp;');
+	}
+	filters['is_filtered']=true;
+	initRecordsTbl();
+});
+
+//--------------------------adjust datatables header--------------------------------
+$('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+	$($.fn.dataTable.tables(true)).DataTable()
+		.columns.adjust();
+});
+
+$(document).ready(function () {
+initRecordsTbl();
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+			<div class="main-header base-bg-secondary bordered-radius-top">
+			</div>
+			<section class="main-content">
+				<div class="row mb-2">
+					<div class="col-12 h3">Published Records</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6 d-flex">
+						<div>
+							{% if user.is_authenticated and user.role.id > 1 %}
+							<a href="{% url 'records-add' %}" class="btn base-bg-secondary mb-2"><i class="fa fa-plus fa-md"></i> ADD</a>
+							{% endif %}
+							<button type="button" class="btn base-bg-secondary" data-toggle="modal" data-target="#filter-modal" style="margin-bottom:10px"><i class="fa fa-filter fa-md"></i> FILTER</button>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12" id="filter-tags">
+						{% if year_from != '' and year_to != '' %}
+							Filters: <div class="badge badge-success">Year={{ year_from }} - {{ year_to }}</div>
+						{% else %}
+							Filters: 
+						{% endif %}
+					</div>
+				</div>
+
+				<div class="row" style="margin-top:20px">
+					<div class="col-12">
+						<table id="tbl-records" class="table table-striped table-bordered table-condensed" style="width:100%">
+							<thead>
+								<tr>
+									<!-- hidden column -->
+									<th>ID</th>
+									<th>REPRESENTATIVE</th>
+									<th>CONFERENCE LEVEL</th>
+									<th>CONFERENCE TITLE</th>
+									<th>CONFERENCE VENUE</th>
+									<th>PUBLICATION</th>
+									<th>ISBN</th>
+									<th>ISSN</th>
+									<th>ISI</th>
+									<th>PUBLICATION LEVEL</th>
+									<th>BUDGET TYPE</th>
+									<th>BUDGET ALLOCATION</th>
+									<th>FUNDING SOURCE</th>
+									<th>COLLABORATION TYPE</th>
+									<th>INSTITUTION</th>
+									<th>INDUSTRY NAME</th>
+									<th>TAG 1</th>
+									<th>TAG 2</th>
+									<th>TAG 3</th>
+									<th>ABSTRACT</th>
+									<!-- visible columns -->
+									<th>RESEARCH TITLE</th>
+									<th>YEAR STARTED</th>
+									{% if user.role.id > 2 %}
+										<th>YEAR COMPLETED</th>
+									{% endif %}
+									<th>CLASS</th>
+									<th>PSCED</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</section>
+
+				<!-- Chatbot -->
+				{% if user.is_subscribed == 1 %}
+    {% if user.role.id > 0 %}
+        {% include 'records/chatbot.html' with is_subscribed=1 %}
+    {% endif %}
+{% else %}
+    {% include 'records/chatbot.html' %}
+{% endif %}
+
+
+
+
+	<!-- --------------------------------Modal--------------------------------------------- -->
+
+	<div class="modal fade" id="filter-modal" tabindex="-1" role="dialog" aria-hidden="true">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+			<form method="post" id="form-filter">
+				{% csrf_token %}
+	    	  <div class="modal-header base-bg-secondary">
+	    	    <h5 class="modal-title">Filter</h5>
+	    	    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	    	      <span aria-hidden="true">&times;</span>
+	    	    </button>
+	    	  </div>
+	    	  <div class="modal-body">
+	    	    <div class="container">
+					<div class="row">
+						<div class="col-lg-5">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" id="year_cb" name="year_cb">
+							  <label class="form-check-label" for="year_cb">
+							    Year
+							  </label>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<input class="form-control" placeholder="from" id="year_from" name="year_from">
+						</div>
+						<div class="col-lg-3">
+							<input class="form-control" placeholder="to" id="year_to" name="year_to">
+						</div>
+					</div>
+					<div class="row" style="margin-bottom: 10px; margin-top: 10px;">
+						<div class="col-sm">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" id="ip_cb" name="ip_cb">
+							  <label class="form-check-label" for="ip_cb">
+								<span id="intellectual_property"> Intellectual Property </span>
+							  </label>
+							</div>
+						</div>
+						<div class="col-auto">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" id="commercialization_cb" name="commercialization_cb">
+							  <label class="form-check-label" for="commercialization_cb">
+							    <span id="commercialization"> Commercialization </span> 
+							  </label>
+							</div>
+						</div>
+						<div class="col-sm">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" id="community_cb" name="community_cb">
+							  <label class="form-check-label" for="community_cb">
+							    <span id="community_extension"> Community Extension </span>
+							  </label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-12">
+							{{ record_form.classification|as_crispy_field }}
+						</div>
+					</div>
+				 	<div class="row">
+						<div class="col-lg-12">
+							{{ record_form.psced_classification|as_crispy_field }}
+						</div>
+					</div>
+					<div class="row" style="margin-bottom: 10px;">
+						<div class="col-lg-12">
+							<label class="form-check-label" for="department_cb"> Department </label>
+							<select class="form-control" id="department" name="department">
+								<option value="">------</option>
+							{% for department in departments %}
+								<option value="{{ department.name }}">{{ department.name }}</option>
+							{% endfor %}
+						    </select>
+						</div>
+					</div>
+					<div class="row" style="margin-top:15px;">
+						<div class="col-lg-5">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" id="author_cb">
+							  <label class="form-check-label" for="author_cb">
+							    Author
+							  </label>
+							</div>
+						</div>
+						<div class="col-lg-7">
+							<input class="form-control" id="author" name="author">
+						</div>
+					</div>
+			  		<div class="row" style="margin-top:10px;">
+						<div class="col-lg-5">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" id="conference_cb">
+							  <label class="form-check-label" for="conference_cb">
+							    Conference Title
+							  </label>
+							</div>
+						</div>
+						<div class="col-lg-7">
+							<input class="form-control" id="conference" name="conference">
+						</div>
+					</div>
+					<div class="row" style="margin-top:10px;">
+						<div class="col-lg-5">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" name="publication_cb" id="publication_cb">
+							  <label class="form-check-label" for="publication_cb">
+							    Publication Name
+							  </label>
+							</div>
+						</div>
+						<div class="col-lg-7">
+							<input class="form-control" id="publication" name="publication">
+						</div>
+					</div>
+					<div class="row" style="margin-top:10px;">
+						<div class="col-lg-5">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" id="budget_cb">
+							  <label class="form-check-label" for="budget_cb">
+							    Total Budget
+							  </label>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<input class="form-control" placeholder="min" id="budget_min" name="budget_min">
+						</div>
+						<div class="col-lg-3">
+							<input class="form-control" placeholder="max" id="budget_max" name="budget_max">
+						</div>
+					</div>
+					<div class="row" style="margin-top:10px;">
+						<div class="col-lg-5">
+							<div class="form-check">
+							  <input class="form-check-input" type="checkbox" id="collaborator_cb">
+							  <label class="form-check-label" for="collaborator_cb">
+							    Collaborator
+							  </label>
+							</div>
+						</div>
+						<div class="col-lg-7">
+							<input class="form-control" id="collaborator" name="collaborator">
+						</div>
+					</div>
+				</div>
+	    	  </div>
+	    	  <div class="modal-footer">
+	    	    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	    	    <button type="button" id="btn-filter-save" data-dismiss="modal" class="btn btn-primary">Apply</button>
+	    	  </div>
+				</form>
+	    	</div>
+	  </div>
+	</div>
+
+{% endblock %}

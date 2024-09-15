@@ -1,0 +1,28 @@
+<div id="collaboration-rows ml-1">
+    <div class="row">
+       <div class="col-lg-5">
+           <div class="label">Other Industry:</div>
+       </div>
+       <div class="col-lg-5">
+           <div class="label">Institution:</div>
+       </div>
+       <div class="col-lg-2">
+           <div class="label">Type:</div>
+       </div>
+   </div>
+   {% for collaboration in record.collaboration_set.all %}
+   <div class="row" id="collaboration-1 ml-1">
+       <div class="col-lg-5">
+           <input type="text" name="industries[]" class="form-control" value="{{ collaboration.industry }}" readonly>
+       </div>
+       <div class="col-lg-5">
+           <input type="text" name="institutions[]" class="form-control" value="{{ collaboration.institution }}" readonly>
+       </div>
+       <div class="col-lg-2">
+           {% for collaboration_type in collaboration_types %}
+               {% if collaboration.collaboration_type.pk == collaboration_type.pk %}<input type="text" name="name[]" class="form-control" value="{{ collaboration_type.name }}" readonly>{% endif %}
+           {% endfor %}
+       </div>
+   </div>
+   {% endfor %}
+</div>
