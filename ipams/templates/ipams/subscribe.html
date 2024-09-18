@@ -27,7 +27,7 @@
     .rectangle-long3 {
         position: relative;
         width: 330px;
-        height: 500px;
+        height: 550px;
         background: gold;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
         border-radius: 45px;
@@ -56,10 +56,10 @@
     .rectangle-long1 .join-button,
     .rectangle-long2 .subscribe-button,
     .rectangle-long3 .subscribe-button {
-        position: absolute;
-        bottom: 270px;
-        left: 50%;
-        transform: translateX(-50%);
+        position: relative; /* Make the button relative, not absolute */
+         /* Add space between the button and the text */
+        margin-left: 110px;
+        margin-right: 110px;
         background-color: maroon;
         color: white;
         padding: 10px 20px;
@@ -67,36 +67,23 @@
         text-align: center;
         text-decoration: none;
         display: inline-block;
-        border-radius: 25px;
+        border-radius: 15px;
         border: none;
         cursor: pointer;
-        transition: background-color 0.6s, box-shadow 0.6s, color 0.6s;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
         box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .rectangle-long1:hover,
-    .rectangle-long2:hover,
-    .rectangle-long3:hover {
-        background-color: maroon;
-        color: white;
-        transform: translateY(-10px);
-        box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
-    }
-
-    .rectangle-long1:hover .join-button,
-    .rectangle-long2:hover .subscribe-button,
-    .rectangle-long3:hover .subscribe-button {
-        background-color: gold;
-        color: black;
     }
 
     .rectangle-long1 .join-button:hover,
     .rectangle-long2 .subscribe-button:hover,
     .rectangle-long3 .subscribe-button:hover {
-        background-color: darkgoldenrod;
-        color: black;
-        box-shadow: 0px 8px 8px rgba(0, 0, 0, 0.5);
+        filter: brightness(150%);
+        color: white;
+        
     }
+
+
+
 
     .hh {
         font-size: small;
@@ -153,7 +140,7 @@
         .rectangle-long3 .subscribe-button {
             bottom: 20px;
             font-size: 16px;
-            padding: 15px 30px;
+            padding: 5px 15px;
         }
 
         .rectangle-long1 .free,
@@ -230,8 +217,23 @@
         .then(data => {
             // Update price display
             document.getElementById('free-plan-name').innerText = data.free_plan_name;
+            document.getElementById('free-plan-name').style.color = "black";
+            document.getElementById('free-plan-name').style.fontWeight = "bold";  // Make the text bold
+            document.getElementById('free-plan-name').style.fontStretch = "expanded";  // Make the text fatter
+            document.getElementById('free-plan-name').style.fontSize = "54px"; 
+
             document.getElementById('standard-plan-name').innerText = data.standard_plan_name;
+            document.getElementById('standard-plan-name').style.color = "maroon";
+            document.getElementById('standard-plan-name').style.fontWeight = "bold";  // Make the text bold
+            document.getElementById('standard-plan-name').style.fontStretch = "expanded";  // Make the text fatter
+            document.getElementById('standard-plan-name').style.fontSize = "54px"; 
+
             document.getElementById('premium-plan-name').innerText = data.premium_plan_name;
+            document.getElementById('premium-plan-name').style.color = "white";
+            document.getElementById('premium-plan-name').style.fontWeight = "bold";  // Make the text bold
+            document.getElementById('premium-plan-name').style.fontStretch = "expanded";  // Make the text fatter
+            document.getElementById('premium-plan-name').style.fontSize = "54px";
+
 
         });
 </script>
@@ -252,36 +254,39 @@
         <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can View Published Research Records</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can Request Download for a Published Research Record</div>
-        <a href="{% url 'payment_portal' %}" class="join-button">Join for Free</a>
+        <br>
+        <a href="{% url 'payment_portal' %}" class="join-button" style="margin-top: -250px;margin-left: 130px;">JOIN</a>
     </div>
 
     <div class="rectangle-long3">
         <div class="bronze" style="text-align: center;font-size: 40px;">PREMIUM</div>
         <div class="hh" style="text-align: center;">Per Semester/ 6 Months</div>
         <div class="free">₱149</div>
-        <a href="{% url 'create_payment_link' %}?tier=premium" class="subscribe-button">Subscribe</a>
+        
         <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Comprehensive subscription with extensive access and functionality</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access</div>
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px; margin-bottom: 20px;"><i class="fa-solid fa-check"></i> Allows instant download of all published research records</div>
+        <a href="{% url 'create_payment_link' %}?tier=premium" class="subscribe-button" style="margin-top: -250px; width: 110px;">SUBSCRIBE</a>
     </div>
     {% else %}
     {% if user.is_admin != 1 and subscription_plan_name == "Premium" or user.is_admin != 1 and subscription_plan_name == "Standard" %}
-    <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
+    <div class="bronzes" style="text-align: center; font-size: 40px; ">You Are Currently Subscribed<br>{{ subscription_plan_name }}</div>
     {% else %}
     <div class="rectangle-long1">
         <div class="bronze" id="free-plan-name" style="text-align: center;font-size: 40px;"></div>
         <div class="free">₱<span id="free-price">0</span></div>
         <br>
         <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can View Published Research Records</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can Request Download for a Published Research Record</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can Add/Publish Research Records</div>
-        <a href="{% url 'payment_portal' %}" class="join-button">Join for Free</a>
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can View Published Research Records</div>
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can Request Download for a Published Research Record</div>
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can Add/Publish Research Records</div>
+        <br>
+        <a href="{% url 'payment_portal' %}" class="join-button" style="margin-top: -250px; width: 110px;">JOIN</a>
     </div>
     {% endif %}
     {% if user.is_admin != 1 and subscription_plan_name == "Premium" or user.is_admin != 1 and subscription_plan_name == "Standard" %}
-    <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
+    <div class="bronzes" style="text-align: center; font-size: 40px; ">You Are Currently Subscribed<br>{{ subscription_plan_name }}</div>
     {% else %}
     <div class="rectangle-long2">
         <div class="bronze" id="standard-plan-name" style="text-align: center;font-size: 40px;"></div>
@@ -292,11 +297,12 @@
             <div class="free">₱<span id="standard-price">0</span></div>
         </tbody>
     </table>
-        <a href="{% url 'create_payment_link' %}?tier=standard" class="subscribe-button">Subscribe</a>
+        
         <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Enhanced features for a reasonable fee</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access (OpenAI API key required)</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Instant download and access to import records and file management</div>
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Enhanced features for a reasonable fee</div>
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access</div>
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Instant download and access to import records and file management</div>
+        <a href="{% url 'create_payment_link' %}?tier=standard" class="subscribe-button" style="margin-top: -262px; width: 110px;">SUBSCRIBE</a>
     </div>
     {% endif %}
     {% if user.is_admin != 1 and subscription_plan_name == "Premium" or user.is_admin != 1 and subscription_plan_name == "Standard" %}
@@ -308,17 +314,18 @@
     </div>
         <div class="hh" style="text-align: center;">Per Semester/ 6 Months</div>
         <div class="free">₱<span id="premium-price">0</span></div>
-        <a href="{% url 'create_payment_link' %}?tier={{ subscription_plan_name|lower }}" class="subscribe-button">Subscribe</a>
+        
         <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;">
             <i class="fa-solid fa-check"></i> Comprehensive subscription with extensive access and functionality
         </div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;">
             <i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access with unlimited tokens
         </div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
+        <div class="offer" style="margin-left: 20px; font-size: 14px; margin-right: 20px;">
             <i class="fa-solid fa-check"></i> Instant download and access to import records and file management
         </div>
+        <a href="{% url 'create_payment_link' %}?tier={{ subscription_plan_name|lower }}" class="subscribe-button" style="margin-top: -280px; width: 110px;">SUBSCRIBE</a>
     </div>
 {% endif %}
 {% endif %}
@@ -326,37 +333,30 @@
     <div class="container" style="width: 800px;">
         <div style="text-align: center;">
             <br>
-            <h4 style="color: #333;"><b>How to subscribe to IPAMS Pro?</b></h4>
+            <h4 style="color: #333;"><b>How to Subscribe to IPAMS Pro?</b></h4>
             <br>
             <br>
-            <p style="color: #666; text-align: justify;">
+            <p style="color: #666; text-align: justify; font-size: 18px;">
                 > To subscribe, you must be a verified account, either a guest or a student account. Your account must be verified by your email.
             </p>
             <br>
-            <p style="color: #666; text-align: justify;">
+            <p style="color: #666; text-align: justify;font-size: 18px;">
                 > Subscribers will be given an option to renew or cancel before the renewal date.
             </p>
             <br>
-            <p style="color: #666; text-align: justify;">
+            <p style="color: #666; text-align: justify;font-size: 18px;">
                 > In the event of a payment failure, your subscription will be cancelled automatically. To continue enjoying the benefits, you'll need to resubscribe.
             </p>
             <br>
-            <p style="color: #666; text-align: justify;">
+            <p style="color: #666; text-align: justify;font-size: 18px;">
                 > You have the flexibility to cancel your IPAMS Pro subscription at any time. However, the cancellation will only take effect on the renewal date of the following month.
             </p>
             <br>
-            <p style="color: #666; text-align: justify;">
+            <p style="color: #666; text-align: justify;font-size: 18px;">
                 > Once subscribed, you'll gain access to a wealth of exclusive content and updates, empowering you to conduct your research like a pro.
             </p>
         </div>
     </div>
-    				<!-- Chatbot -->
-                    {% if user.is_subscribed == 1 %}
-                    {% if user.role.id > 0 %}
-                        {% include 'records/chatbot.html' with is_subscribed=1 %}
-                    {% endif %}
-                {% else %}
-                    {% include 'records/chatbot.html' %}
-                {% endif %}
+
 </div>
 {% endblock %}
