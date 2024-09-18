@@ -483,9 +483,9 @@ initRecordsTbl();
 					<div class="col-md-6 d-flex">
 						<div>
 							{% if user.is_authenticated and user.role.id > 1 %}
-							<a href="{% url 'records-add' %}" class="btn base-bg-secondary mb-2"><i class="fa fa-plus fa-md"></i> ADD</a>
+							<a href="{% url 'records-add' %}" class="btn base-bg-secondary mb-2" style="color: white;"><i class="fa fa-plus fa-md"></i> ADD</a>
 							{% endif %}
-							<button type="button" class="btn base-bg-secondary" data-toggle="modal" data-target="#filter-modal" style="margin-bottom:10px"><i class="fa fa-filter fa-md"></i> FILTER</button>
+							<button type="button" class="btn base-bg-secondary" data-toggle="modal" data-target="#filter-modal" style="margin-bottom:10px; color: white;"><i class="fa fa-filter fa-md"></i> FILTER</button>
 						</div>
 					</div>
 				</div>

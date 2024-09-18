@@ -139,9 +139,10 @@
 
         <!-------------------------- NAVBAR ------------------------------->
         
-        <div class="navbar base-bg-primary d-flex fixed-top mw-100 pr-5 mb-10">
+        <div class="navbar base-bg-primary d-flex fixed-top mw-100 pr-5 mb-10" >
             <div class="col-4">
                 <a href="{% url 'records-index' %}"><img src="{% static 'icons/ipams.png' %}" alt="" width="140" height="50"></a>
+                <!-- <a href="{% url 'records-index' %}"><img src="{% static 'icons/ipams.png' %}" alt="" width="140" height="50" style="background-color:gold;"></a> -->
             </div>
 
             {% if not hide_profile %}
@@ -150,8 +151,8 @@
             <!-- Login Form -->
 
                 {% if not user.is_authenticated %}
-                <div class="login-form-container pt-4" >
-                    <form class="px-4 py-3 text-white" method="post" action="{% url 'accounts-login' %}">
+                <div class="login-form-container pt-4"  >
+                    <form class="px-4 py-3 text-white" method="post" action="{% url 'accounts-login' %}" >
                         
                         {% csrf_token %}
                             <div class="row flex-nowrap align-items-center">
@@ -201,7 +202,7 @@
                
                 <!-- Menu  -->
                 <div class="dropdown">
-                    <button data-backdrop="false" type="button" class="btn base-bg-secondary ml-3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button data-backdrop="false" type="button" class="btn base-bg-secondary ml-3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white;">
                         <i class="fa fa-bars fa-md"></i>
                     </button>
                     <div class="navbar-menu dropdown-menu dropdown-menu-right">
@@ -469,7 +470,7 @@
                     <form method="post" id="profile-form">
                         {% csrf_token %}
                         <div class="modal-header base-bg-secondary">
-                            <h5 class="modal-title">Profile</h5>
+                            <h5 class="modal-title" style="color: white;">Profile</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>

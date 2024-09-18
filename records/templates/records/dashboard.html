@@ -214,7 +214,7 @@
 /* Submit button styling */
 .submit-button {
     padding: 12px;
-    background-color: #007bff;
+    background-color: #721c24;
     color: white;
     border: none;
     border-radius: 5px;
@@ -225,7 +225,8 @@
 }
 
 .submit-button:hover {
-    background-color: #0056b3;
+    background-color: gold;
+    color: white;
 }
 .col-lg-10{
     padding-right: 0px;
@@ -435,10 +436,10 @@
                 <a href="{% url 'dashboard-manage-documents' %}" class="btn base-btn base-bg-secondary">Documents</a> 
                 <a href="{% url 'dashboard-manage-accounts' %}" class="btn base-btn base-bg-secondary">Accounts</a> 
                 <a href="{% url 'dashboard-logs' %}" class="btn base-btn base-bg-secondary">Logs</a> 
-               	<a href="{% url 'reset-accounts' %}" class="btn base-btn base-bg-secondary">Accounts</a>
+               	<a href="{% url 'reset-accounts' %}" class="btn base-btn base-bg-secondary">Account Logs</a>
                 <button id="manageSubscriptionsBtn" class="btn base-btn base-bg-secondary">Subscriptions</button>
                 <button id="edit-api-key-btn" class="btn base-btn base-bg-secondary">
-                    <i class="fa fa-key"></i> 
+                <i class="fa fa-key"></i> 
                    
                 </button>
                 
@@ -456,7 +457,7 @@
     <div class="modal-contentAPI">
         <span id="close-modal" class="close-button">&times;</span>
         <h2>Update API Key</h2>
-		<br>
+
         <form id="apiKeyForm">
             <input type="text" id="apiKeyInput" placeholder="Enter new API Key" required>
             <button type="submit" class="submit-button">Submit</button>
