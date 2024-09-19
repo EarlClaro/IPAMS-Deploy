@@ -326,7 +326,7 @@ class Subscription(models.Model):
     end_date = models.DateField(null=True, blank=True)
     user_id = models.ForeignKey('accounts.User', on_delete=models.CASCADE, default=None)
     plan_id = models.ForeignKey(SubscriptionPlan, on_delete=models.CASCADE, default=1)
-    locked_plan_name = models.CharField(max_length=50, null=True, blank=True)  # New field to lock plan name
+    locked_plan_name = models.CharField(max_length=50)  # New field to lock plan name
     status = models.CharField(max_length=50, default='active')
 
     def __str__(self):
@@ -342,6 +342,11 @@ class Subscription(models.Model):
         self.locked_plan_name = self.plan_id.plan_name  
         self.status = 'active'
         self.save()
+    def save(self, *args, **kwargs):
+    
+        if not self.locked_plan_name:
+            self.locked_plan_name = self.plan_id.plan_name
+        super().save(*args, **kwargs) 
 
     def is_near_end(self):
         return self.end_date <= datetime.now().date() + timedelta(days=7)

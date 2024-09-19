@@ -3984,6 +3984,7 @@ def verify_subscription(request):
                 payment_data = data['data']
                 attributes = payment_data.get('attributes', {})
                 logger.info(f'Payment data attributes: {attributes}')
+                
                 if attributes.get('status') == 'paid':
                     user = request.user
 
@@ -3991,20 +3992,21 @@ def verify_subscription(request):
                     Subscription.objects.filter(user_id=user).delete()
 
                     # Determine the subscription plan based on the amount paid
-                    amount_paid = attributes.get('amount')
-                    if amount_paid == 10000:  # 100.00 pesos in cents
-                        plan = SubscriptionPlan.objects.get(plan_id=2)  # Standard plan
-                    elif amount_paid == 14900:  # 149.00 pesos in cents
-                        plan = SubscriptionPlan.objects.get(plan_id=3)  # Premium plan
-                    else:
-                        plan = SubscriptionPlan.objects.get(plan_id=1)  # Default to Free plan
+                    amount_paid = attributes.get('amount') / 100  # Convert cents to pesos
+
+                    try:
+                     
+                        plan = SubscriptionPlan.objects.get(price=amount_paid) 
+                    except SubscriptionPlan.DoesNotExist:
+                        logger.error('No subscription plan matches the amount paid.')
+                        return JsonResponse({'success': False, 'message': 'No subscription plan matches the amount paid.'})
 
                     # Create a new subscription
                     subscription = Subscription.objects.create(
                         start_date=datetime.now().date(),
                         end_date=(datetime.now() + timedelta(days=180)).date(),
                         user_id=user,
-                        plan_id=plan,
+                        plan_id=plan, 
                         status='active'
                     )
 
