@@ -117,11 +117,11 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ipamsdjango',
-        'USER': 'narralink',  # Replace with your Azure MySQL username
-        'PASSWORD': 'July82001Cl@ro',  # Replace with your Azure MySQL password
-        'PORT': '3306',
-        'HOST': 'ipamsdjango.mysql.database.azure.com',  # Your Azure MySQL server hostname
+        'NAME': 'ipamsdjango',  # Your DigitalOcean database name
+        'USER': 'doadmin',  # Your DigitalOcean MySQL username
+        'PASSWORD': 'AVNS_04uBQHFP1EbEurK1Xsj',  # Replace with your DigitalOcean MySQL password
+        'PORT': '25060',  # DigitalOcean MySQL port
+        'HOST': 'ipamsdjango-do-user-17750378-0.g.db.ondigitalocean.com',  # Your DigitalOcean MySQL hostname
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
         },
