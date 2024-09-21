@@ -4218,10 +4218,12 @@ def fetch_subscriptions(request):
     free_plan_id = 1
     standard_plan_id = 2  # Replace with your actual logic
     premium_plan_id = 3   # Replace with your actual logic
+    free_trial_plan_id = 4  # Add the ID for the Free Trial plan
 
     free_plan = SubscriptionPlan.objects.filter(plan_id=free_plan_id).first()
     standard_plan = SubscriptionPlan.objects.filter(plan_id=standard_plan_id).first()
     premium_plan = SubscriptionPlan.objects.filter(plan_id=premium_plan_id).first()
+    free_trial_plan = SubscriptionPlan.objects.filter(plan_id=free_trial_plan_id).first()  # Fetch free trial
 
     return JsonResponse({
         'standard_price': standard_plan.price if standard_plan else 0,
@@ -4230,4 +4232,6 @@ def fetch_subscriptions(request):
         'premium_plan_name': premium_plan.plan_name if premium_plan else '',
         'free_price': free_plan.price if free_plan else 0,
         'free_plan_name': free_plan.plan_name if free_plan else '',
+        'free_trial_price': free_trial_plan.price if free_trial_plan else 0,  # Free trial price
+        'free_trial_plan_name': free_trial_plan.plan_name if free_trial_plan else '',  # Free trial name
     })
