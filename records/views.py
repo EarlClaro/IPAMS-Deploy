@@ -4060,7 +4060,7 @@ def renew_subscription(request):
         subscription = Subscription.objects.get(user_id=request.user, status='active')
 
         # Create a new payment link for the renewal
-        checkout_url, link_id = create_payment_link(14900, 'Subscription Renewal Payment')
+        checkout_url, link_id = create_payment_link(15000, 'Subscription Renewal Payment')
         if not checkout_url:
             return JsonResponse({'success': False, 'message': 'Failed to create payment link.'})
 
