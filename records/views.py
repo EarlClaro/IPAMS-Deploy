@@ -4218,12 +4218,10 @@ def fetch_subscriptions(request):
     free_plan_id = 1
     standard_plan_id = 2  # Replace with your actual logic
     premium_plan_id = 3   # Replace with your actual logic
-    free_trial_plan_id = 4  # Add the ID for the Free Trial plan
 
     free_plan = SubscriptionPlan.objects.filter(plan_id=free_plan_id).first()
     standard_plan = SubscriptionPlan.objects.filter(plan_id=standard_plan_id).first()
     premium_plan = SubscriptionPlan.objects.filter(plan_id=premium_plan_id).first()
-    free_trial_plan = SubscriptionPlan.objects.filter(plan_id=free_trial_plan_id).first()  # Fetch free trial
 
     return JsonResponse({
         'standard_price': standard_plan.price if standard_plan else 0,
@@ -4232,6 +4230,32 @@ def fetch_subscriptions(request):
         'premium_plan_name': premium_plan.plan_name if premium_plan else '',
         'free_price': free_plan.price if free_plan else 0,
         'free_plan_name': free_plan.plan_name if free_plan else '',
-        'free_trial_price': free_trial_plan.price if free_trial_plan else 0,  # Free trial price
-        'free_trial_plan_name': free_trial_plan.plan_name if free_trial_plan else '',  # Free trial name
     })
+
+
+def subscribe_free_trial(request):
+    user = request.user  
+    plan = SubscriptionPlan.objects.get(plan_name='Free Trial')
+    if not user.is_subscribed: 
+        
+        subscription = Subscription.objects.create(
+            start_date=datetime.now().date(),
+            end_date=(datetime.now() + timedelta(days=30)).date(), 
+            user_id=user,
+            plan_id=plan, 
+            status='active'
+        )
+       
+        user.is_subscribed = True
+        user.subscription_status = 'free_trial'
+        user.sub_id = subscription.sub_id
+        user.save()
+       
+        messages.success(request, 'You are now subscribed to the Free Trial plan 30days is crazyyyyy.')
+          
+        return redirect('subscribe') 
+    
+    else:
+          
+        messages.warning(request, 'You are already subscribed.')
+        return redirect('subscribe')

@@ -107,7 +107,7 @@ urlpatterns = [
      path('subscribed_users/', views.subscribed_users, name='subscribed_users'),
      path('update_subscription_plan/', update_subscription_plan, name='update_subscription_plan'),
      path('fetch_subscriptions/', fetch_subscriptions, name='fetch_subscriptions'),
-
+     path('subscribe/free-trial/', views.subscribe_free_trial, name='subscribe_free_trial'),
 ]
 
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
