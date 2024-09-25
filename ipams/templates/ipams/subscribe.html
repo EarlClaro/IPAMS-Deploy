@@ -233,7 +233,8 @@
     <h1>Welcome to our Subscription Page!</h1>
     <p>Subscribe to our service to get access to exclusive content and updates.</p>
 </div>
-
+<!-- guest subscribe.html -->
+ <!-- free trial -->
 <div class="rectangle-container">
     {% if user.role.id == 1 %}
     <div class="rectangle-long1">
@@ -246,27 +247,24 @@
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Can Request Download for a Published Research Record</div>
         <a href="{% url 'subscribe_free_trial' %}" class="join-button" style="margin-top: -250px;margin-left: 130px;">JOIN</a>
     </div>
+<!-- premium -->
+    <div class="rectangle-long2">
+        <div class="bronze" id="standard-plan-name" style="text-align: center;font-size: 40px;"></div>
+        <div class="hh" style="text-align: center;">Per Semester/ 6 Months</div>
+        
 
-    <div class="rectangle-long3">
-        <div class="bronze" id="premium-plan-name" style="text-align: center; font-size: 40px;">
-          
-      </div>
-          <div class="hh" style="text-align: center;">Per Semester/ 6 Months</div>
-          <div class="free">₱<span id="premium-price">0</span></div>
-          
-          <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
-          <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
-              <i class="fa-solid fa-check"></i> Comprehensive subscription with extensive access and functionality
-          </div>
-          <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
-              <i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access with unlimited tokens
-          </div>
-          <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
-              <i class="fa-solid fa-check"></i> Instant download and access to import records and file management
-          </div>
-          <a href="{% url 'create_payment_link' %}?tier=premium" class="subscribe-button" style="margin-top: -280px; width: 110px;">SUBSCRIBE</a>
-      </div>
-      
+        <tbody>
+            <div class="free">₱<span id="standard-price">0</span></div>
+        </tbody>
+    </table>
+        
+        <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
+        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Enhanced features for a reasonable fee</div>
+        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access (OpenAI API key required)</div>
+        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Instant download and access to import records and file management</div>
+        <a href="{% url 'create_payment_link' %}?tier=standard" class="subscribe-button" style="margin-top: -262px; width: 110px;">SUBSCRIBE</a>
+    </div>
+
     {% else %}
     {% if user.is_admin != 1 and  user.is_subscribed %}
     <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
