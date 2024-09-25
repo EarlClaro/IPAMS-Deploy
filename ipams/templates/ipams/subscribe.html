@@ -248,16 +248,25 @@
     </div>
 
     <div class="rectangle-long3">
-        <div class="bronze" style="text-align: center;font-size: 40px;">PREMIUM</div>
-        <div class="hh" style="text-align: center;">Per Semester/ 6 Months</div>
-        <div class="free">₱149</div>
-        
-        <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Comprehensive subscription with extensive access and functionality</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access</div>
-        <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px; margin-bottom: 20px;"><i class="fa-solid fa-check"></i> Allows instant download of all published research records</div>
-        <a href="{% url 'create_payment_link' %}?tier=premium" class="subscribe-button" style="margin-top: -250px; width: 110px;">SUBSCRIBE</a>
-    </div>
+        <div class="bronze" id="premium-plan-name" style="text-align: center; font-size: 40px;">
+          
+      </div>
+          <div class="hh" style="text-align: center;">Per Semester/ 6 Months</div>
+          <div class="free">₱<span id="premium-price">0</span></div>
+          
+          <div class="whats" style="margin-left: 20px; font-size: 18px; margin-right: 20px;">What's included:</div>
+          <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
+              <i class="fa-solid fa-check"></i> Comprehensive subscription with extensive access and functionality
+          </div>
+          <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
+              <i class="fa-solid fa-check"></i> Includes view access to all published research records, instant download, and AI chatbot access with unlimited tokens
+          </div>
+          <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;">
+              <i class="fa-solid fa-check"></i> Instant download and access to import records and file management
+          </div>
+          <a href="{% url 'create_payment_link' %}?tier=premium" class="subscribe-button" style="margin-top: -280px; width: 110px;">SUBSCRIBE</a>
+      </div>
+      
     {% else %}
     {% if user.is_admin != 1 and  user.is_subscribed %}
     <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
