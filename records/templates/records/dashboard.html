@@ -577,6 +577,12 @@
             </form>
         </div>
 
+        <div class="container">
+            <button id="updateSubscriptionBtn" class="btn base-btn base-bg-secondary" style="width: 250px;">Update Subscription</button>
+        </div>
+    </div>
+</div>
+
         <!-- Update Form -->
         <div id="updatePlanForm" style="display: none;">
             <h4>Edit Subscription Plan</h4>
@@ -611,13 +617,6 @@ document.getElementById('manageSubscriptionsBtn').addEventListener('click', func
             document.querySelector('#subscribedUsersTable tbody').innerHTML = data;
         });
 
-    // Fetch and display subscription plans
-    fetch('/manage_subscriptions/')
-        .then(response => response.text())
-        .then(data => {
-            document.querySelector('#subscriptionsTable tbody').innerHTML = data;
-        });
-
     // Show the modal
     document.getElementById('subscriptionsModal').style.display = 'block';
 });
@@ -642,6 +641,43 @@ document.querySelector('#subscribedUsersTable').addEventListener('click', functi
         // Show the form for editing
         document.getElementById('updateSubscribedUserForm').style.display = 'block';
     }
+});
+
+// Handle form submission for updating subscribed users' start and end dates
+document.getElementById('editSubscribedUserForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const subscriptionId = document.getElementById('subscriptionId').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    fetch('/update_subscribed_user/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included
+        },
+        body: JSON.stringify({
+            subscription_id: subscriptionId,
+            start_date: startDate,
+            end_date: endDate
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Refresh the subscribed users table
+            fetch('/subscribed_users/')
+                .then(response => response.text())
+                .then(data => {
+                    document.querySelector('#subscribedUsersTable tbody').innerHTML = data;
+                });
+            // Hide the form
+            document.getElementById('updateSubscribedUserForm').style.display = 'none';
+        } else {
+            alert('Failed to update subscribed user.');
+        }
+    });
 });
 
 			// Handle form submission for updating subscription plans
