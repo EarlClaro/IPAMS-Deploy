@@ -518,7 +518,7 @@
 </script>
 
 				
-<!-- Modal -->
+<!-- Subscription Modal -->
 <div id="subscriptionsModal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
@@ -536,6 +536,7 @@
                     <th>Status</th>
                     <th>Start Date</th>
                     <th>End Date</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -560,6 +561,21 @@
                 <!-- Table rows will be inserted by JavaScript -->
             </tbody>
         </table>
+        <!-- Update Subscribed User Form -->
+        <div id="updateSubscribedUserForm" style="display: none;">
+            <h4>Edit Subscribed User</h4>
+            <form id="editSubscribedUserForm">
+                <input type="hidden" id="subscriptionId" name="subscription_id">
+                
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="start_date" required><br><br>
+
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="end_date" required><br><br>
+
+                <button type="submit" class="btn base-btn base-bg-secondary">Save Changes</button>
+            </form>
+        </div>
 
         <!-- Update Form -->
         <div id="updatePlanForm" style="display: none;">
@@ -587,56 +603,46 @@
 
 
 		<script>
-			// JavaScript for handling the modal
-			document.getElementById('manageSubscriptionsBtn').addEventListener('click', function() {
-				// Fetch and display subscribed users
-				fetch('/subscribed_users/')
-					.then(response => response.text())
-					.then(data => {
-						document.querySelector('#subscribedUsersTable tbody').innerHTML = data;
-					});
+// Fetch and display subscribed users
+document.getElementById('manageSubscriptionsBtn').addEventListener('click', function() {
+    fetch('/subscribed_users/')
+        .then(response => response.text())
+        .then(data => {
+            document.querySelector('#subscribedUsersTable tbody').innerHTML = data;
+        });
 
-				// Fetch and display subscription plans
-				fetch('/manage_subscriptions/')
-					.then(response => response.text())
-					.then(data => {
-						document.querySelector('#subscriptionsTable tbody').innerHTML = data;
-					});
+    // Fetch and display subscription plans
+    fetch('/manage_subscriptions/')
+        .then(response => response.text())
+        .then(data => {
+            document.querySelector('#subscriptionsTable tbody').innerHTML = data;
+        });
 
-				// Show the modal
-				document.getElementById('subscriptionsModal').style.display = 'block';
-			});
+    // Show the modal
+    document.getElementById('subscriptionsModal').style.display = 'block';
+});
 
-			// Close modal event
-			document.querySelector('.close').addEventListener('click', function() {
-				document.getElementById('subscriptionsModal').style.display = 'none';
-			});
+// Handle table row clicks for editing subscribed users' start and end dates
+document.querySelector('#subscribedUsersTable').addEventListener('click', function(event) {
+    const target = event.target;
+    if (target && target.classList.contains('editUserBtn')) {
+        // Find the closest table row
+        const row = target.closest('tr');
 
-			// Handle table row clicks for editing
-			document.querySelector('#subscriptionsTable').addEventListener('click', function(event) {
-			const target = event.target;
-			if (target && target.classList.contains('editBtn')) {
-				// Find the closest table row
-				const row = target.closest('tr');
+        // Extract data from the row
+        const subscriptionId = row.querySelector('td:nth-child(1)').innerText;
+        const startDate = row.querySelector('td:nth-child(5)').innerText;
+        const endDate = row.querySelector('td:nth-child(6)').innerText;
 
-				// Extract data from the row
-				const planId = row.querySelector('td:nth-child(1)').innerText;
-				const planName = row.querySelector('td:nth-child(2)').innerText;
-				const price = row.querySelector('td:nth-child(3)').innerText.replace('$', '');
-				const duration = row.querySelector('td:nth-child(4)').innerText;
+        // Set the values in the form
+        document.getElementById('subscriptionId').value = subscriptionId;
+        document.getElementById('startDate').value = startDate;
+        document.getElementById('endDate').value = endDate;
 
-				// Set the values in the form
-				document.getElementById('planId').value = planId;
-				document.getElementById('planName').value = planName;
-				document.getElementById('price').value = price;
-				document.getElementById('duration').value = duration;
-
-				// Show the form for editing
-				document.getElementById('updatePlanForm').style.display = 'block';
-			}
-		});
-
-
+        // Show the form for editing
+        document.getElementById('updateSubscribedUserForm').style.display = 'block';
+    }
+});
 
 			// Handle form submission for updating subscription plans
 			document.getElementById('editPlanForm').addEventListener('submit', function(event) {
