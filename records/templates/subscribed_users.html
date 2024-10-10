@@ -74,15 +74,13 @@
                 <td>{{ subscription.start_date }}</td>
                 <td>{{ subscription.end_date }}</td>
                 <td>
-                    <button class="editBtn" data-id="{{ subscription.sub_id }}">Edit</button>
+                    <button class="editUserBtn" data-id="{{ subscription.sub_id }}">Edit</button> <!-- Ensure this button has the class editUserBtn -->
                 </td>
             </tr>
-            
             {% empty %}
             <tr>
                 <td colspan="7">No subscriptions found.</td>
             </tr>
-
             {% endfor %}
         </tbody>
     </table>
