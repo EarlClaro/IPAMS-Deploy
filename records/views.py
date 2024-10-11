@@ -4077,15 +4077,21 @@ def renew_subscription(request):
 @login_required
 def cancel_subscription(request):
     try:
+        # Fetch the subscription that belongs to the current user and is active
         subscription = Subscription.objects.get(user_id=request.user, status='active')
-        subscription.status = 'inactive'
-        subscription.save()
+
+        # Delete the subscription instead of just setting it to inactive
+        subscription.delete()
+
+        # Update user subscription-related fields
         request.user.is_subscribed = False
         request.user.subscription_status = 'unpaid'
         request.user.save()
-        return JsonResponse({'success': True, 'message': 'Subscription canceled successfully.'})
+
+        return JsonResponse({'success': True, 'message': 'Subscription canceled and deleted successfully.'})
     except Subscription.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
+
     
 
 from django.http import JsonResponse
