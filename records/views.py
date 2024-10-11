@@ -132,7 +132,7 @@ def update_record_tags(request, record_id):
 
 import logging
 
-# Function to create a payment link
+#  Function to create a payment link
 def create_payment_link_view(request):
     tier = request.GET.get('tier', '')
     price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Corrected prices
@@ -4057,22 +4057,17 @@ def home_view(request):
 @login_required
 def renew_subscription(request):
     try:
+        # Fetch the active subscription for the current user
         subscription = Subscription.objects.get(user_id=request.user, status='active')
 
-        # Create a new payment link for the renewal
-        checkout_url, link_id = create_payment_link(15000, 'Subscription Renewal Payment')
-        if not checkout_url:
-            return JsonResponse({'success': False, 'message': 'Failed to create payment link.'})
-
-        # Store the link_id in the session to verify payment later
-        request.session['stored_link_id'] = link_id
-
-        return redirect(checkout_url)
+        # Render the renew.html page without generating a payment link
+        return render(request, 'renew.html', {'subscription': subscription})
     except Subscription.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
     except Exception as e:
         logger.error('Error renewing subscription: %s', e)
         return JsonResponse({'success': False, 'message': 'An unexpected error occurred.'})
+
 
 @login_required
 def cancel_subscription(request):

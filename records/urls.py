@@ -95,6 +95,7 @@ urlpatterns = [
      path('get_payment_link_and_check_status/',views.get_payment_link_and_check_status,name='get_payment_link_and_check_status'),
      path('verify_subscription/', views.verify_subscription, name='verify_subscription'),
      path('renew_subscription/', renew_subscription, name='renew_subscription'),
+     
      path('cancel_subscription/', cancel_subscription, name='cancel_subscription'),
      path('check-verification-status/', check_verification_status, name='check_verification_status'),
      path('update-price/', views.update_price, name='update_price'),
