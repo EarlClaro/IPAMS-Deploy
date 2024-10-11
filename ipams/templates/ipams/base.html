@@ -528,6 +528,20 @@
                                                 <button type="button" class="btn btn-primary mt-1" id="verify_button">Activate</button>
                                             </div>
                                         </div>
+                                        {% if user.is_subscribed %}
+                                        <!-- NEW INPUT FOR RENEWAL REFERENCE NUMBER -->
+                                        <div class="row profile-row">
+                                            <div class="col-3">
+                                                <label>Input Renewal Reference Number:</label>
+                                            </div>
+                                            <div class="col-9">
+                                                <input type="text" class="form-control profile-input" id="renewal_reference_number" name="renewal_reference_number">
+                                                <button type="button" class="btn btn-success mt-1" id="renew_verify_button">Renew</button>
+                                            </div>
+                                        </div>
+                                        <!-- END OF NEW INPUT -->
+                                        {% endif %}
+
                                         <div class="row profile-row">
                                             <div class="col-3">
                                                 <label>Subscription:</label>
@@ -542,6 +556,7 @@
                                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                                         <script>
                                             $(document).ready(function() {
+                                                // For the first reference number input
                                                 $('#verify_button').click(function() {
                                                     var referenceNumber = $('#reference_number').val().trim();
                                                     if (referenceNumber !== '') {
@@ -570,9 +585,37 @@
                                                         alert('Please enter a reference number.');
                                                     }
                                                 });
+                        
+                                                // For the renewal reference number input
+                                                $('#renew_verify_button').click(function() {
+                                                    var renewalReferenceNumber = $('#renewal_reference_number').val().trim();
+                                                    if (renewalReferenceNumber !== '') {
+                                                        $.ajax({
+                                                            type: 'POST',
+                                                            url: '/verify_renewal_subscription/',  // This should trigger your new view
+                                                            data: {
+                                                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                                                                reference_number: renewalReferenceNumber
+                                                            },
+                                                            success: function(response) {
+                                                                console.log(response); // Log the response for debugging
+                                                                if (response.success) {
+                                                                    alert(response.message);
+                                                                    location.reload();
+                                                                } else {
+                                                                    alert(response.message);
+                                                                }
+                                                            },
+                                                            error: function(xhr, status, error) {
+                                                                console.error('AJAX Error:', error);
+                                                                alert('An error occurred while renewing the subscription. Please check the server logs for more details.');
+                                                            }
+                                                        });
+                                                    } else {
+                                                        alert('Please enter a renewal reference number.');
+                                                    }
+                                                });
                                             });
-
-                                            
                                         </script>
                                         {% if user.role.pk == 2 %}
                                         <div class="row" style="margin-top: 10px;">

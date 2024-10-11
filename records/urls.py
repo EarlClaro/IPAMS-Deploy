@@ -94,6 +94,8 @@ urlpatterns = [
      path('create_payment_link/', views.create_payment_link_view, name='create_payment_link'),
      path('get_payment_link_and_check_status/',views.get_payment_link_and_check_status,name='get_payment_link_and_check_status'),
      path('verify_subscription/', views.verify_subscription, name='verify_subscription'),
+    path('verify_renewal_subscription/', views.verify_renewal_subscription, name='verify_renewal_subscription'),
+
      path('renew_subscription/', renew_subscription, name='renew_subscription'),
      # path('renew-subscription/', views.renew_subscription, name='renew_subscription'),
      path('cancel_subscription/', cancel_subscription, name='cancel_subscription'),

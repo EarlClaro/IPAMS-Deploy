@@ -4101,6 +4101,74 @@ def verify_subscription(request):
         logger.error('Invalid request method.')
         return JsonResponse({'success': False, 'message': 'Invalid request method.'})
 
+def verify_renewal_subscription(request):
+    if request.method == 'POST':
+        reference_number = request.POST.get('reference_number')
+
+        if not reference_number:
+            logger.error('Reference number is required.')
+            return JsonResponse({'success': False, 'message': 'Reference number is required.'})
+
+        url = f"https://api.paymongo.com/v1/links/{reference_number}"
+        encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
+        headers = {
+            "accept": "application/json",
+            "authorization": f"Basic {encoded_api_key}"
+        }
+
+        try:
+            response = requests.get(url, headers=headers)
+            response.raise_for_status()
+            data = response.json()
+
+            if data and 'data' in data:
+                payment_data = data['data']
+                attributes = payment_data.get('attributes', {})
+                logger.info(f'Payment data attributes: {attributes}')
+
+                if attributes.get('status') == 'paid':
+                    user = request.user
+
+                    # Access the user's current active subscription
+                    try:
+                        subscription = Subscription.objects.get(user_id=user, status='active')
+                    except Subscription.DoesNotExist:
+                        logger.error('Active subscription not found for user.')
+                        return JsonResponse({'success': False, 'message': 'No active subscription found to renew.'})
+
+                    # Extend the end date by 6 months
+                    new_end_date = subscription.end_date + timedelta(days=180)
+                    subscription.end_date = new_end_date
+                    subscription.save()
+
+                    user.subscription_status = 'renewed'
+                    user.save()
+
+                    logger.info(f'Subscription for user {user} extended. New end date: {new_end_date}')
+                    return JsonResponse({'success': True, 'message': 'Subscription renewed successfully.'})
+                else:
+                    logger.error('Payment for the reference number is not yet completed.')
+                    return JsonResponse({'success': False, 'message': 'Payment for the reference number is not yet completed.'})
+            else:
+                logger.error('Invalid reference number.')
+                return JsonResponse({'success': False, 'message': 'Invalid reference number.'})
+        except requests.HTTPError as e:
+            if response.status_code == 404:
+                logger.error('Payment link not found. Please check the reference number.')
+                return JsonResponse({'success': False, 'message': 'Payment link not found. Please check the reference number.'})
+            else:
+                logger.error(f'Error in Paymongo API request: {e}')
+                return JsonResponse({'success': False, 'message': f'Error in Paymongo API request: {e}'})
+        except requests.RequestException as e:
+            logger.error(f'Error in Paymongo API request: {e}')
+            return JsonResponse({'success': False, 'message': f'Error in Paymongo API request: {e}'})
+        except Exception as e:
+            logger.error(f'Unexpected error: {e}')
+            return JsonResponse({'success': False, 'message': f'Unexpected error: {e}'})
+    else:
+        logger.error('Invalid request method.')
+        return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+    
 def home_view(request):
     user = request.user
     show_modal = False
