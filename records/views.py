@@ -4077,11 +4077,15 @@ def renew_subscription(request):
 @login_required
 def cancel_subscription(request):
     try:
-        # Debugging: Fetch all subscriptions for the user
+        # Fetch all subscriptions for the user
         subscriptions = Subscription.objects.filter(user_id=request.user)
         print(f"User subscriptions: {subscriptions}")
 
-        # Fetch active subscription
+        # Print the status of the subscription to debug
+        for sub in subscriptions:
+            print(f"Subscription ID: {sub.id}, Status: {sub.status}")
+
+        # Filter for active subscription using case-insensitive matching
         subscription = subscriptions.filter(status__iexact='active').first()
 
         if subscription:
@@ -4097,6 +4101,7 @@ def cancel_subscription(request):
             return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
     except Exception as e:
         return JsonResponse({'success': False, 'message': str(e)})
+
 
     
 
