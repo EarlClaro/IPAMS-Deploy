@@ -527,7 +527,7 @@
 
         <!-- Subscribed Users Table -->
         <h3>Subscribed Users</h3>
-        <table id="subscribedUsersTable">
+        <!-- <table id="subscribedUsersTable">
             <thead>
                 <tr>
                     <th>Subscription ID</th>
@@ -541,7 +541,7 @@
             <tbody>
                 <!-- Table rows will be inserted by JavaScript -->
             </tbody>
-        </table>
+        </table> -->
         <br>
 
         <!-- Subscription Plans Table -->
@@ -676,6 +676,40 @@
 					}
 				});
 			});
+
+             // Ensure that this script runs after the content is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Attach event listeners to all cancel buttons in the subscriptions table
+        document.querySelectorAll('.cancel-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                if (confirm('Are you sure you want to cancel this subscription?')) {
+                    fetch('/cancel_subscription/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included
+                        },
+                    })
+                    .then(response => {
+                        console.log(response);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload(); // Reload the page to update the table
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while canceling the subscription.');
+                    });
+                }
+            });
+        });
 
 			// Helper function to get CSRF token
 			function getCookie(name) {
