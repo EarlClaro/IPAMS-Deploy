@@ -805,9 +805,18 @@
                         csrfmiddlewaretoken: '{{ csrf_token }}'
                     },
                     success: function(response) {
-                        alert(response.message);
+                        console.log('Response from backend:', response);  // Log the entire response for debugging
                         if (response.success) {
-                            location.reload();
+                            // Check and log if checkout_url exists
+                            console.log('Checkout URL:', response.checkout_url);
+                            if (response.checkout_url) {
+                                // Redirect the user to the PayMongo checkout page
+                                window.location.href = response.checkout_url;
+                            } else {
+                                alert('Error: Checkout URL is undefined.');
+                            }
+                        } else {
+                            alert(response.message);
                         }
                     },
                     error: function(xhr, status, error) {
@@ -816,6 +825,9 @@
                     }
                 });
             });
+
+
+
 
             $('#cancel-button').click(function() {
                 $.ajax({

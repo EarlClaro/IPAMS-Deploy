@@ -132,7 +132,7 @@ def update_record_tags(request, record_id):
 
 import logging
 
-#  Function to create a payment link
+# Function to create a payment link
 def create_payment_link_view(request):
     tier = request.GET.get('tier', '')
     price_mapping = {'premium': 10000, 'advanced': 14900, 'free': 10000}  # Corrected prices
@@ -3935,7 +3935,69 @@ def create_payment_link_view(request):
     except Exception as error:
         logger.error('Error creating payment link: %s', error)
         return redirect('/')  # Redirect to homepage or error page
-    
+
+import requests
+from django.http import JsonResponse
+import base64
+
+@login_required
+def renew_subscription(request):
+    if request.method == 'POST':
+        try:
+            # Get the user's current subscription
+            subscription = Subscription.objects.get(user_id=request.user, status='active')
+
+            # Check the plan_id from the subscription and determine the tier and amount
+            plan_id = subscription.plan_id_id
+            if plan_id == 1:
+                tier = 'free trial'
+                amount = 0  # Free trial, no charge
+            elif plan_id == 2:
+                tier = 'standard'
+                amount = 15000  # 150 PHP in cents
+            elif plan_id == 3:
+                tier = 'premium'
+                amount = 20000  # 200 PHP in cents
+            else:
+                return JsonResponse({'success': False, 'message': 'Invalid subscription plan.'})
+
+            # Create a PayMongo payment link from the backend (server-to-server)
+            url = 'https://api.paymongo.com/v1/links'
+            payload = {
+                'data': {
+                    'attributes': {
+                        'amount': amount,
+                        'description': f'{tier.capitalize()} Subscription Payment',
+                        'remarks': 'Subscription Payment',
+                        'status': 'unpaid'
+                    }
+                }
+            }
+
+            encoded_api_key = base64.b64encode(paymongo_api_key.encode()).decode()
+            headers = {
+                'Authorization': f'Basic {encoded_api_key}',
+                'Content-Type': 'application/json'
+            }
+
+            # Make the API request to PayMongo from the server
+            response = requests.post(url, json=payload, headers=headers)
+            response.raise_for_status()
+
+            # Extract the payment URL and return it as JSON response
+            data = response.json()
+            checkout_url = data['data']['attributes']['checkout_url']
+
+            return JsonResponse({'success': True, 'checkout_url': checkout_url})
+
+        except Subscription.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
+        except requests.exceptions.HTTPError as http_err:
+            return JsonResponse({'success': False, 'message': f'Payment processing error: {http_err}'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': 'An unexpected error occurred.'})
+
+
 
 def get_payment_link_and_check_status(link_id):
     try:
@@ -4054,42 +4116,20 @@ def home_view(request):
 
     return render(request, 'base.html', {'show_modal': show_modal})
 
-@login_required
-def renew_subscription(request):
-    try:
-        # Fetch the active subscription for the current user
-        subscription = Subscription.objects.get(user_id=request.user, status='active')
-
-        # Render the renew.html page without generating a payment link
-        return render(request, 'renew.html', {'subscription': subscription})
-    except Subscription.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
-    except Exception as e:
-        logger.error('Error renewing subscription: %s', e)
-        return JsonResponse({'success': False, 'message': 'An unexpected error occurred.'})
 
 
 @login_required
 def cancel_subscription(request):
     try:
-        # Fetch the first subscription for the user (regardless of status)
-        subscription = Subscription.objects.filter(user_id=request.user).first()
-
-        if subscription:
-            print(f"Found subscription: {subscription.sub_id}, Status: {subscription.status}")
-            subscription.delete()
-
-            request.user.is_subscribed = False
-            request.user.subscription_status = 'unpaid'
-            request.user.save()
-
-            return JsonResponse({'success': True, 'message': 'Subscription canceled and deleted successfully.'})
-        else:
-            return JsonResponse({'success': False, 'message': 'No subscription found for the user.'})
-    except Exception as e:
-        return JsonResponse({'success': False, 'message': str(e)})
-
-
+        subscription = Subscription.objects.get(user_id=request.user, status='active')
+        subscription.status = 'inactive'
+        subscription.save()
+        request.user.is_subscribed = False
+        request.user.subscription_status = 'unpaid'
+        request.user.save()
+        return JsonResponse({'success': True, 'message': 'Subscription canceled successfully.'})
+    except Subscription.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
     
 
 from django.http import JsonResponse
