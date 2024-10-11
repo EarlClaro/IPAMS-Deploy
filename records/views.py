@@ -4077,20 +4077,26 @@ def renew_subscription(request):
 @login_required
 def cancel_subscription(request):
     try:
-        # Fetch the subscription that belongs to the current user and is active
-        subscription = Subscription.objects.get(user_id=request.user, status='active')
+        # Debugging: Fetch all subscriptions for the user
+        subscriptions = Subscription.objects.filter(user_id=request.user)
+        print(f"User subscriptions: {subscriptions}")
 
-        # Delete the subscription instead of just setting it to inactive
-        subscription.delete()
+        # Fetch active subscription
+        subscription = subscriptions.filter(status__iexact='active').first()
 
-        # Update user subscription-related fields
-        request.user.is_subscribed = False
-        request.user.subscription_status = 'unpaid'
-        request.user.save()
+        if subscription:
+            print(f"Found active subscription: {subscription}")
+            subscription.delete()
 
-        return JsonResponse({'success': True, 'message': 'Subscription canceled and deleted successfully.'})
-    except Subscription.DoesNotExist:
-        return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
+            request.user.is_subscribed = False
+            request.user.subscription_status = 'unpaid'
+            request.user.save()
+
+            return JsonResponse({'success': True, 'message': 'Subscription canceled and deleted successfully.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Active subscription not found.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'message': str(e)})
 
     
 
