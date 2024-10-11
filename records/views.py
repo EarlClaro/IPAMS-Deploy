@@ -4081,15 +4081,15 @@ def cancel_subscription(request):
         subscriptions = Subscription.objects.filter(user_id=request.user)
         print(f"User subscriptions: {subscriptions}")
 
-        # Print the status of the subscription to debug
+        # Print subscription details to check the status and sub_id
         for sub in subscriptions:
-            print(f"Subscription ID: {sub.id}, Status: {sub.status}")
+            print(f"Subscription ID: {sub.sub_id}, Status: {sub.status}")
 
         # Filter for active subscription using case-insensitive matching
         subscription = subscriptions.filter(status__iexact='active').first()
 
         if subscription:
-            print(f"Found active subscription: {subscription}")
+            print(f"Found active subscription: {subscription.sub_id}")
             subscription.delete()
 
             request.user.is_subscribed = False
