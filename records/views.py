@@ -4022,6 +4022,9 @@ def get_payment_link_and_check_status(link_id):
         return None  # Return None if an error occurs
 
 
+from django.db import connections
+from django.utils.timezone import now
+
 def verify_subscription(request):
     if request.method == 'POST':
         reference_number = request.POST.get('reference_number')
@@ -4046,7 +4049,7 @@ def verify_subscription(request):
                 payment_data = data['data']
                 attributes = payment_data.get('attributes', {})
                 logger.info(f'Payment data attributes: {attributes}')
-                
+
                 if attributes.get('status') == 'paid':
                     user = request.user
 
@@ -4057,8 +4060,7 @@ def verify_subscription(request):
                     amount_paid = attributes.get('amount') / 100  # Convert cents to pesos
 
                     try:
-                     
-                        plan = SubscriptionPlan.objects.get(price=amount_paid) 
+                        plan = SubscriptionPlan.objects.get(price=amount_paid)
                     except SubscriptionPlan.DoesNotExist:
                         logger.error('No subscription plan matches the amount paid.')
                         return JsonResponse({'success': False, 'message': 'No subscription plan matches the amount paid.'})
@@ -4068,14 +4070,59 @@ def verify_subscription(request):
                         start_date=datetime.now().date(),
                         end_date=(datetime.now() + timedelta(days=180)).date(),
                         user_id=user,
-                        plan_id=plan, 
+                        plan_id=plan,
                         status='active'
                     )
 
+                    # Update user's subscription status in the main database
                     user.is_subscribed = True
                     user.subscription_status = 'paid'
                     user.sub_id = subscription.sub_id
                     user.save()
+
+                    # Determine the subscription type for nalc
+                    if plan.price == 0:
+                        nalc_subscription_type = 'FREE TRIAL'
+                    elif plan.price == 150:
+                        nalc_subscription_type = 'STANDARD'
+                    elif plan.price == 200:
+                        nalc_subscription_type = 'PREMIUM'
+                    else:
+                        logger.error('Unknown subscription plan price for nalc integration.')
+                        return JsonResponse({'success': False, 'message': 'Unknown subscription plan price for nalc integration.'})
+
+                    # Insert or update subscription field in nalc database
+                    try:
+                        logger.info(f"Updating NALC subscription for user {user.email} with plan {nalc_subscription_type}")
+                        
+                        # Fetch the user_id from the nalc database using the email
+                        with connections['nalc'].cursor() as cursor:
+                            cursor.execute("SELECT id FROM backend_user WHERE email = %s", [user.email])
+                            nalc_user_id_result = cursor.fetchone()
+                            
+                        if nalc_user_id_result:
+                            nalc_user_id = nalc_user_id_result[0]
+                            logger.info(f"Found NALC user with id {nalc_user_id} for email {user.email}")
+                            
+                            # Now update the subscription field using the nalc_user_id
+                            with connections['nalc'].cursor() as cursor:
+                                cursor.execute("""
+                                    UPDATE backend_user
+                                    SET subscription = %s
+                                    WHERE id = %s;
+                                """, [nalc_subscription_type, nalc_user_id])
+
+                            logger.info(f'Successfully updated NALC user subscription to {nalc_subscription_type}')
+                        else:
+                            logger.error(f"User with email {user.email} not found in NALC database. No record updated.")
+                            return JsonResponse({'success': False, 'message': 'User not found in NALC database by email.'})
+
+                    except Exception as e:
+                        logger.error(f'Error updating NALC database: {e}')
+                        return JsonResponse({'success': False, 'message': 'Failed to update NALC subscription.'})
+
+
+
 
                     return JsonResponse({'success': True, 'message': 'Subscription verified and updated successfully.'})
                 else:
