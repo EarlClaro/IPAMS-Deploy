@@ -271,9 +271,7 @@
     </div>
 
     {% else %}
-    {% if user.is_admin != 1 and  user.is_subscribed %}
-    <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
-    {% else %}
+
     <div class="rectangle-long1">
         <div class="bronze" id="free-plan-name" style="text-align: center;font-size: 40px;"></div>
         <div class="hh" style="text-align: center;">30 days</div>
@@ -293,10 +291,7 @@
         <a href="{% url 'subscribe_free_trial' %}" class="join-button" style="margin-top: -320px; width: 110px;">JOIN</a>
 
     </div>
-    {% endif %}
-    {% if user.is_admin != 1 and  user.is_subscribed %}
-    <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
-    {% else %}
+
     <div class="rectangle-long2">
         <div class="bronze" id="standard-plan-name" style="text-align: center;font-size: 40px;"></div>
         <div class="hh" style="text-align: center;">Per Semester/ 6 Months</div>
@@ -313,10 +308,7 @@
         <div class="offer" style="margin-left: 20px; font-size: 12px; margin-right: 20px;"><i class="fa-solid fa-check"></i> Instant download and access to import records and file management</div>
         <a href="{% url 'create_payment_link' %}?tier=standard" class="subscribe-button" style="margin-top: -262px; width: 110px;">SUBSCRIBE</a>
     </div>
-    {% endif %}
-    {% if user.is_admin != 1 and  user.is_subscribed %}
-    <div class="bronzes" style="text-align: center; font-size: 40px;">You Are Currently Subscribe<br>{{ subscription_plan_name }}</div>
-    {% else %}
+
     <div class="rectangle-long3">
       <div class="bronze" id="premium-plan-name" style="text-align: center; font-size: 40px;">
         
@@ -337,7 +329,7 @@
         <a href="{% url 'create_payment_link' %}?tier=premium" class="subscribe-button" style="margin-top: -280px; width: 110px;">SUBSCRIBE</a>
     </div>
 {% endif %}
-{% endif %}
+
 
 </div>
 

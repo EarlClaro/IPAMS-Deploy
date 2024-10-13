@@ -4424,3 +4424,25 @@ def subscribe_free_trial(request):
        
          messages.error(request, "You have already used the free trial and cannot subscribe again.")
          return redirect('subscribe')
+        
+
+def deactivate_subscription(request):
+    
+
+     if request.method == 'POST':
+        #subscription_id = request.POST.get('subscription_id')
+        user_idd = request.POST.get('user_id')
+        try:
+            #subscription = Subscription.objects.get(sub_id=subscription_id)
+            subscription = Subscription.objects.get(user_id=user_idd)
+            subscription.status = 'inactive'  
+            
+            subscription.save()
+            user = subscription.user_id
+            user.is_subscribed = False
+           
+            user.save()
+            return JsonResponse({'success': True})
+        except Subscription.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Subscription not found'})
+     return JsonResponse({'success': False, 'error': 'Invalid request'})

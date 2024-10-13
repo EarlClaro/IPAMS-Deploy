@@ -530,12 +530,13 @@
         <table id="subscribedUsersTable">
             <thead>
                 <tr>
-                    <!-- <th>Subscription ID</th>
+                    <th>Subscription ID</th>
                     <th>User ID</th>
                     <th>Plan ID</th>
                     <th>Status</th>
                     <th>Start Date</th>
-                    <th>End Date</th> -->
+                    <th>End Date</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -588,140 +589,142 @@
 
 		<script>
 			// JavaScript for handling the modal
-            document.getElementById('manageSubscriptionsBtn').addEventListener('click', function() {
-                // Fetch and display subscribed users
-                fetch('/subscribed_users/')
-                    .then(response => response.text())
-                    .then(data => {
-                        document.querySelector('#subscribedUsersTable tbody').innerHTML = data;
-                        attachCancelEventListeners(); // Attach event listeners after content is loaded
-                    });
+			document.getElementById('manageSubscriptionsBtn').addEventListener('click', function() {
+				// Fetch and display subscribed users
+				fetch('/subscribed_users/')
+					.then(response => response.text())
+					.then(data => {
+						document.querySelector('#subscribedUsersTable tbody').innerHTML = data;
+					});
 
-                // Fetch and display subscription plans
-                fetch('/manage_subscriptions/')
-                    .then(response => response.text())
-                    .then(data => {
-                        document.querySelector('#subscriptionsTable tbody').innerHTML = data;
-                    });
+				// Fetch and display subscription plans
+				fetch('/manage_subscriptions/')
+					.then(response => response.text())
+					.then(data => {
+						document.querySelector('#subscriptionsTable tbody').innerHTML = data;
+					});
 
-                // Show the modal
-                document.getElementById('subscriptionsModal').style.display = 'block';
-            });
+				// Show the modal
+				document.getElementById('subscriptionsModal').style.display = 'block';
+			});
 
-            // Close modal event
-            document.querySelector('.close').addEventListener('click', function() {
-                document.getElementById('subscriptionsModal').style.display = 'none';
-            });
+			// Close modal event
+			document.querySelector('.close').addEventListener('click', function() {
+				document.getElementById('subscriptionsModal').style.display = 'none';
+			});
 
-            // Handle table row clicks for editing subscription plans
-            document.querySelector('#subscriptionsTable').addEventListener('click', function(event) {
-                const target = event.target;
-                if (target && target.classList.contains('editBtn')) {
-                    // Find the closest table row
-                    const row = target.closest('tr');
+			// Handle table row clicks for editing
+			document.querySelector('#subscriptionsTable').addEventListener('click', function(event) {
+			const target = event.target;
+			if (target && target.classList.contains('editBtn')) {
+				// Find the closest table row
+				const row = target.closest('tr');
 
-                    // Extract data from the row
-                    const planId = row.querySelector('td:nth-child(1)').innerText;
-                    const planName = row.querySelector('td:nth-child(2)').innerText;
-                    const price = row.querySelector('td:nth-child(3)').innerText.replace('$', '');
-                    const duration = row.querySelector('td:nth-child(4)').innerText;
+				// Extract data from the row
+				const planId = row.querySelector('td:nth-child(1)').innerText;
+				const planName = row.querySelector('td:nth-child(2)').innerText;
+				const price = row.querySelector('td:nth-child(3)').innerText.replace('$', '');
+				const duration = row.querySelector('td:nth-child(4)').innerText;
 
-                    // Set the values in the form
-                    document.getElementById('planId').value = planId;
-                    document.getElementById('planName').value = planName;
-                    document.getElementById('price').value = price;
-                    document.getElementById('duration').value = duration;
+				// Set the values in the form
+				document.getElementById('planId').value = planId;
+				document.getElementById('planName').value = planName;
+				document.getElementById('price').value = price;
+				document.getElementById('duration').value = duration;
 
-                    // Show the form for editing
-                    document.getElementById('updatePlanForm').style.display = 'block';
-                }
-            });
-
-            // Handle form submission for updating subscription plans
-            document.getElementById('editPlanForm').addEventListener('submit', function(event) {
-                event.preventDefault();
-
-                const planId = document.getElementById('planId').value;
-                const planName = document.getElementById('planName').value;
-                const price = document.getElementById('price').value;
-                const duration = document.getElementById('duration').value;
-
-                fetch('/update_subscription_plan/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included
-                    },
-                    body: JSON.stringify({
-                        plan_id: planId,
-                        plan_name: planName,
-                        price: price,
-                        duration_months: duration
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Refresh the subscription plans table
-                        fetch('/manage_subscriptions/')
-                            .then(response => response.text())
-                            .then(data => {
-                                document.querySelector('#subscriptionsTable tbody').innerHTML = data;
-                            });
-                        // Hide the form
-                        document.getElementById('updatePlanForm').style.display = 'none';
-                    } else {
-                        alert('Failed to update subscription plan.');
-                    }
-                });
-            });
-
-            // Attach cancel button event listeners dynamically
-            function attachCancelEventListeners() {
-                document.querySelectorAll('.cancel-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        if (confirm('Are you sure you want to cancel this subscription?')) {
-                            fetch('/cancel_subscription/', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included
-                                },
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    alert(data.message);
-                                    location.reload(); // Reload the page to update the table
-                                } else {
-                                    alert(data.message);
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('An error occurred while canceling the subscription.');
-                            });
-                        }
-                    });
-                });
+				// Show the form for editing
+				document.getElementById('updatePlanForm').style.display = 'block';
+			}
+		});
+        document.querySelector('#subscribedUsersTable').addEventListener('click', function(event) {
+    const target = event.target;
+    
+ 
+    if (target && target.classList.contains('deactivateBtn')) {
+      //  const subscriptionId = target.getAttribute('data-subscription-id');
+         const userId = target.getAttribute('data-user-id');
+        
+       
+        fetch('/deactivate_subscription/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')  
+            },
+            body: new URLSearchParams({
+               // 'subscription_id': subscriptionId,
+                 'user_id': userId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                
+                target.closest('tr').querySelector('td:nth-child(4)').innerText = 'Inactive';
+                alert('Subscription deactivated successfully.');
+            } else {
+                alert('Failed to deactivate subscription.');
             }
+        });
+    }
+});
 
-            // Helper function to get CSRF token
-            function getCookie(name) {
-                let cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    const cookies = document.cookie.split(';');
-                    for (let i = 0; i < cookies.length; i++) {
-                        const cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
 
+
+			// Handle form submission for updating subscription plans
+			document.getElementById('editPlanForm').addEventListener('submit', function(event) {
+				event.preventDefault();
+
+				const planId = document.getElementById('planId').value;
+				const planName = document.getElementById('planName').value;
+				const price = document.getElementById('price').value;
+				const duration = document.getElementById('duration').value;
+
+				fetch('/update_subscription_plan/', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included
+					},
+					body: JSON.stringify({
+						plan_id: planId,
+						plan_name: planName,
+						price: price,
+						duration_months: duration
+					})
+				})
+				.then(response => response.json())
+				.then(data => {
+					if (data.success) {
+						// Refresh the subscription plans table
+						fetch('/manage_subscriptions/')
+							.then(response => response.text())
+							.then(data => {
+								document.querySelector('#subscriptionsTable tbody').innerHTML = data;
+							});
+						// Hide the form
+						document.getElementById('updatePlanForm').style.display = 'none';
+					} else {
+						alert('Failed to update subscr8iption plan.');
+					}
+				});
+			});
+
+			// Helper function to get CSRF token
+			function getCookie(name) {
+				let cookieValue = null;
+				if (document.cookie && document.cookie !== '') {
+					const cookies = document.cookie.split(';');
+					for (let i = 0; i < cookies.length; i++) {
+						const cookie = cookies[i].trim();
+						if (cookie.substring(0, name.length + 1) === (name + '=')) {
+							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+							break;
+						}
+					}
+				}
+				return cookieValue;
+			}
 
 		</script>
 

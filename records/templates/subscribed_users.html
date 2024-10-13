@@ -1,3 +1,4 @@
+<!-- subscribed_users.html -->
 <!DOCTYPE html>
 <html>
 <head>
@@ -45,35 +46,12 @@
             text-align: center;
             color: #888;
         }
-
-        .cancel-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        .cancel-btn:hover {
-            background-color: #d32f2f;
-        }
     </style>
 </head>
 <body>
-
+    
     <table>
-        <thead>
-            <tr>
-                <th>Subscription ID</th>
-                <th>User ID</th>
-                <th>Plan ID</th>
-                <th>Status</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
+
         <tbody>
             {% for subscription in subscriptions %}
             <tr>
@@ -83,64 +61,14 @@
                 <td>{{ subscription.status }}</td>
                 <td>{{ subscription.start_date }}</td>
                 <td>{{ subscription.end_date }}</td>
-                <td>
-                    {% if subscription.status == 'active' %}
-                    <button class="cancel-btn">Cancel</button>
-                    {% endif %}
-                </td>
+                 <td><button class="deactivateBtn" data-user-id="{{ subscription.user_id.id }}">Deactivate</button></td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7">No subscriptions found.</td>
+                <td colspan="6">No subscriptions found.</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <script>
-        document.querySelectorAll('.cancel-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                if (confirm('Are you sure you want to cancel this subscription?')) {
-                    fetch('/cancel_subscription/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken') // Ensure CSRF token is included
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            location.reload(); // Reload the page to update the table
-                        } else {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('An error occurred while canceling the subscription.');
-                    });
-                }
-            });
-        });
-
-        // Helper function to get CSRF token
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-    </script>
-
 </body>
 </html>
