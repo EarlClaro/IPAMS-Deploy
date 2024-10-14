@@ -4395,9 +4395,16 @@ def fetch_subscriptions(request):
 def subscribe_free_trial(request):
     user = request.user  
     plan = SubscriptionPlan.objects.get(plan_name='Free Trial')
-    free_trial_used = Subscription.objects.filter(user_id=user, plan_id_id=1, status='inactive').exists() 
+    #free_trial_used = Subscription.objects.filter(user_id=user, plan_id_id=plan, status='inactive').exists() 
+    #currently_subscribed = Subscription.objects.filter(user_id=user, status='active').exclude(plan_id=plan).exists()
+    current_subscription = Subscription.objects.filter(user_id=user, status='active').first()
+    free_trial_used = Subscription.objects.filter(user_id=user, plan_id=plan, status='inactive').exists()
+
+    if current_subscription:
+        messages.error(request, "You are currently subscribed to another plan and cannot subscribe to the free trial.")
+        return redirect('subscribe')
     if not user.is_subscribed and not free_trial_used: 
-        
+        Subscription.objects.filter(user_id=user).delete()
         subscription = Subscription.objects.create(
             start_date=datetime.now().date(),
             end_date=(datetime.now() + timedelta(days=30)).date(), 
@@ -4413,7 +4420,7 @@ def subscribe_free_trial(request):
         user.save()
 
        
-        messages.success(request, 'You are now subscribed to the Free Trial plan.')
+        messages.success(request, 'You are now subscribed to the Free Trial plan 30days is crazyyyyy.')
 
           
         return redirect('subscribe') 
@@ -4424,7 +4431,6 @@ def subscribe_free_trial(request):
        
          messages.error(request, "You have already used the free trial and cannot subscribe again.")
          return redirect('subscribe')
-        
 
 def deactivate_subscription(request):
     

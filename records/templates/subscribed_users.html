@@ -61,7 +61,11 @@
                 <td>{{ subscription.status }}</td>
                 <td>{{ subscription.start_date }}</td>
                 <td>{{ subscription.end_date }}</td>
-                 <td><button class="deactivateBtn" data-user-id="{{ subscription.user_id.id }}">Deactivate</button></td>
+                <td>
+                {% if subscription.status == 'active'%}
+               <button class="deactivateBtn" data-user-id="{{ subscription.user_id.id }}">Deactivate</button>
+                 {% endif %}
+                </td>
             </tr>
             {% empty %}
             <tr>
