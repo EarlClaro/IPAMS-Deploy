@@ -129,6 +129,27 @@
             border-color: #B22222;
             color: white;
         }
+    .modal-contents {
+    background-color: white;
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgb(0, 0, 0);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 1052; 
+}
+.modal-contentss{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1051;  
+}
 
     
     </style>
@@ -139,10 +160,9 @@
 
         <!-------------------------- NAVBAR ------------------------------->
         
-        <div class="navbar base-bg-primary d-flex fixed-top mw-100 pr-5 mb-10" >
+        <div class="navbar base-bg-primary d-flex fixed-top mw-100 pr-5 mb-10">
             <div class="col-4">
                 <a href="{% url 'records-index' %}"><img src="{% static 'icons/ipams.png' %}" alt="" width="140" height="50"></a>
-                <!-- <a href="{% url 'records-index' %}"><img src="{% static 'icons/ipams.png' %}" alt="" width="140" height="50" style="background-color:gold;"></a> -->
             </div>
 
             {% if not hide_profile %}
@@ -151,8 +171,8 @@
             <!-- Login Form -->
 
                 {% if not user.is_authenticated %}
-                <div class="login-form-container pt-4"  >
-                    <form class="px-4 py-3 text-white" method="post" action="{% url 'accounts-login' %}" >
+                <div class="login-form-container pt-4" >
+                    <form class="px-4 py-3 text-white" method="post" action="{% url 'accounts-login' %}">
                         
                         {% csrf_token %}
                             <div class="row flex-nowrap align-items-center">
@@ -160,8 +180,8 @@
                                     {{ login_form|crispy }}
                                 </div>
                                 <div class="login-btn-group mt-3">
-                                    <button type="submit" class="btn base-btn base-bg-secondary ml-2" style="color: white;">Sign In</button>
-                                    <a href="{% url 'accounts-signup' %}"><button type="button" class="btn base-btn base-bg-secondary ml-2" style="color: white;">Signup</button></a>
+                                    <button type="submit" class="btn base-btn base-bg-secondary ml-2">Sign In</button>
+                                    <a href="{% url 'accounts-signup' %}"><button type="button" class="btn base-btn base-bg-secondary ml-2">Signup</button></a>
                                 </div>
                             </div>
                             {% if login_required %}
@@ -202,7 +222,7 @@
                
                 <!-- Menu  -->
                 <div class="dropdown">
-                    <button data-backdrop="false" type="button" class="btn base-bg-secondary ml-3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white;">
+                    <button data-backdrop="false" type="button" class="btn base-bg-secondary ml-3" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-bars fa-md"></i>
                     </button>
                     <div class="navbar-menu dropdown-menu dropdown-menu-right">
@@ -216,7 +236,7 @@
                             <a class="dropdown-item" href="{% url 'records-dashboard' %}">Dashboard</a>
                         {% endif %}
 
-                        <a class="dropdown-item" href="{% url 'subscribe' %}">Subscribe</a>
+                        <a class="dropdown-item" href="{% url 'subscribe' %}" id="subscribe-button">Subscribe</a>
 
                         <div class="dropdown-divider"></div>
                         {% comment %}
@@ -464,13 +484,21 @@
         </div>
 
         <!-- --------------------------------Modal--------------------------------------------- -->
+        <div id="notificationModal" class="notificationModal" style="display: none;">
+            <div class="modal-contentss"></div>
+            <div class="modal-contents">
+                <span id="close-notification" class="close-button">&times;</span>
+                <p id="modal-message"></p>
+            </div>
+        </div>
+
         <div class="modal fade" id="profile-modal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <form method="post" id="profile-form">
                         {% csrf_token %}
                         <div class="modal-header base-bg-secondary">
-                            <h5 class="modal-title" style="color: white;">Profile</h5>
+                            <h5 class="modal-title">Profile</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -528,20 +556,6 @@
                                                 <button type="button" class="btn btn-primary mt-1" id="verify_button">Activate</button>
                                             </div>
                                         </div>
-                                        {% if user.is_subscribed %}
-                                        <!-- NEW INPUT FOR RENEWAL REFERENCE NUMBER -->
-                                        <div class="row profile-row">
-                                            <div class="col-3">
-                                                <label>Input Renewal Reference Number:</label>
-                                            </div>
-                                            <div class="col-9">
-                                                <input type="text" class="form-control profile-input" id="renewal_reference_number" name="renewal_reference_number">
-                                                <button type="button" class="btn btn-success mt-1" id="renew_verify_button">Renew</button>
-                                            </div>
-                                        </div>
-                                        <!-- END OF NEW INPUT -->
-                                        {% endif %}
-
                                         <div class="row profile-row">
                                             <div class="col-3">
                                                 <label>Subscription:</label>
@@ -556,7 +570,6 @@
                                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                                         <script>
                                             $(document).ready(function() {
-                                                // For the first reference number input
                                                 $('#verify_button').click(function() {
                                                     var referenceNumber = $('#reference_number').val().trim();
                                                     if (referenceNumber !== '') {
@@ -568,55 +581,35 @@
                                                                 reference_number: referenceNumber
                                                             },
                                                             success: function(response) {
-                                                                console.log(response); // Log the response for debugging
+                                                                showNotification(response); // Log the response for debugging
                                                                 if (response.success) {
-                                                                    alert(response.message);
+                                                                    showNotification(response.message);
                                                                     location.reload();
                                                                 } else {
-                                                                    alert(response.message);
+                                                                    showNotification(response.message);
                                                                 }
                                                             },
                                                             error: function(xhr, status, error) {
                                                                 console.error('AJAX Error:', error);
-                                                                alert('An error occurred while verifying the subscription. Please check the server logs for more details.');
+                                                                showNotification('An error occurred while verifying the subscription. Please check the server logs for more details.');
                                                             }
                                                         });
                                                     } else {
-                                                        alert('Please enter a reference number.');
-                                                    }
-                                                });
-                        
-                                                // For the renewal reference number input
-                                                $('#renew_verify_button').click(function() {
-                                                    var renewalReferenceNumber = $('#renewal_reference_number').val().trim();
-                                                    if (renewalReferenceNumber !== '') {
-                                                        $.ajax({
-                                                            type: 'POST',
-                                                            url: '/verify_renewal_subscription/',  // This should trigger your new view
-                                                            data: {
-                                                                csrfmiddlewaretoken: '{{ csrf_token }}',
-                                                                reference_number: renewalReferenceNumber
-                                                            },
-                                                            success: function(response) {
-                                                                console.log(response); // Log the response for debugging
-                                                                if (response.success) {
-                                                                    alert(response.message);
-                                                                    location.reload();
-                                                                } else {
-                                                                    alert(response.message);
-                                                                }
-                                                            },
-                                                            error: function(xhr, status, error) {
-                                                                console.error('AJAX Error:', error);
-                                                                alert('An error occurred while renewing the subscription. Please check the server logs for more details.');
-                                                            }
-                                                        });
-                                                    } else {
-                                                        alert('Please enter a renewal reference number.');
+                                                        showNotification('Please enter a reference number.');
                                                     }
                                                 });
                                             });
+                                            function showNotification(message) {
+                                            const modal = document.getElementById('notificationModal');
+                                             const messageElement = document.getElementById('modal-message');
+                                             messageElement.innerText = message;
+                                             modal.style.display = 'block';  
+                                                        }
+                                           document.getElementById('close-notification').addEventListener('click', function() {
+                                          document.getElementById('notificationModal').style.display = 'none';
+                                                        });
                                         </script>
+                                    
                                         {% if user.role.pk == 2 %}
                                         <div class="row" style="margin-top: 10px;">
                                             <div class="col-3">
@@ -848,29 +841,17 @@
                         csrfmiddlewaretoken: '{{ csrf_token }}'
                     },
                     success: function(response) {
-                        console.log('Response from backend:', response);  // Log the entire response for debugging
+                        showNotification(response.message);
                         if (response.success) {
-                            // Check and log if checkout_url exists
-                            console.log('Checkout URL:', response.checkout_url);
-                            if (response.checkout_url) {
-                                // Redirect the user to the PayMongo checkout page
-                                window.location.href = response.checkout_url;
-                            } else {
-                                alert('Error: Checkout URL is undefined.');
-                            }
-                        } else {
-                            alert(response.message);
+                            location.reload();
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('AJAX Error:', error);
-                        alert('An error occurred while renewing the subscription.');
+                        showNotification('An error occurred while renewing the subscription.');
                     }
                 });
             });
-
-
-
 
             $('#cancel-button').click(function() {
                 $.ajax({
@@ -880,18 +861,21 @@
                         csrfmiddlewaretoken: '{{ csrf_token }}'
                     },
                     success: function(response) {
-                        alert(response.message);
+                        showNotification(response.message);
                         if (response.success) {
                             location.reload();
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('AJAX Error:', error);
-                        alert('An error occurred while canceling the subscription.');
+                        showNotification('An error occurred while canceling the subscription.');
                     }
                 });
             });
         });
     </script>
+
+
+
 </body>
 </html>

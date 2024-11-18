@@ -308,6 +308,84 @@
             border-radius: 5px;
             margin-right: 10px;
         }
+
+        /* Styling for Custom Alert */
+            body {
+            font-family: Arial, sans-serif;
+            }
+
+            Modal Styles
+            .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            /* z-index: 1000; Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            }
+
+            .modal-contents {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 2px solid maroon;
+            width: 90%; /* Adjust width for smaller screens */
+            max-width: 400px; /* Set a maximum width for the modal */
+            text-align: center;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            position: fixed;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+            .modal-contents {
+                width: 90%; /* Wider for smaller screens */
+            }
+            }
+
+            /* Close Button */
+            .close-button {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: maroon;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            
+            }
+
+            /* Button Styles */
+            #alert-ok-btn {
+            background-color: maroon;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            }
+
+            #alert-ok-btn:hover {
+            background-color: gold;
+            color: maroon;
+            }
+
+            /* Heading and Text */
+            h2 {
+            color: maroon;
+            }
+
+            p {
+            color: #333;
+            }
+
+        
     </style>
 </head>
 <body>
@@ -320,16 +398,53 @@
         <span class="material-symbols-outlined">close</span>
     </button>
     
-
+    <!-- Custom Alert Modal -->
+    <div id="customAlert" class="modal">
+        <div class="modal-contentss"></div>
+        <div class="modal-contents">
+        <span class="close-button">&times;</span>
+        <h2>Notice</h2>
+        <p>You need to login or have an active subscription to access this feature.</p>
+        <button id="alert-ok-btn">OK</button>
+        </div>
+    </div>
+  
+  
     <script>
         const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
-    
+        //custom alert form
+        function showCustomAlert() {
+        const modal = document.getElementById('customAlert');
+        const closeButton = document.querySelector('.close-button');
+        const okButton = document.getElementById('alert-ok-btn');
+
+        // Show the modal
+        modal.style.display = 'block';
+
+        // Close the modal on 'X' button click
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+
+        // Close the modal on 'OK' button click
+        okButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+
+        // Close the modal if user clicks outside the modal content
+        window.onclick = (event) => {
+            if (event.target === modal) {
+            modal.style.display = 'none';
+            }
+        };
+        }
+
         chatbotTogglers.forEach(chatbotToggler => {
           chatbotToggler.addEventListener('click', async (event) => {
             const isSubscribed = chatbotToggler.getAttribute('data-is-subscribed');
     
             if (isSubscribed == 0) {
-              alert("You need to login or have an active subscription to access this feature.");
+              showCustomAlert("You need to login or have an active subscription to access this feature.");
               return;
             }
     
@@ -343,7 +458,7 @@
             modalOverlay.classList.add('modal-overlay');
     
             const iframe = document.createElement('iframe');
-            iframe.src = `http://167.172.68.108/?email=${email}`; // Load URL with email and password in query params
+            iframe.src = http//167.172.68.108/?email=${email}; // Load URL with email and password in query params
             iframe.setAttribute('frameborder', '0');
             iframe.style.width = '80%';
             iframe.style.height = '80%';
@@ -392,7 +507,7 @@
          
          // Fetch password from backend using email
          try {
-         const response = await fetch(`http://localhost:8000/api/get-password/?email=${email}`, {
+         const response = await fetch(http://localhost:8000/api/get-password/?email=${email}, {
              method: 'GET',
              headers: {
              'Content-Type': 'application/json',
@@ -408,7 +523,7 @@
              modalOverlay.classList.add('modal-overlay');
  
              const iframe = document.createElement('iframe');
-             iframe.src = `http://localhost:3000/?email=${email}&password=${password}`;
+             iframe.src = http://localhost:3000/?email=${email}&password=${password};
              iframe.setAttribute('frameborder', '0');
              iframe.style.width = '80%';
              iframe.style.height = '80%';
