@@ -398,16 +398,48 @@
         <span class="material-symbols-outlined">close</span>
     </button>
     
+    <div id="customAlert" class="modal">
+        <div class="modal-contentss"></div>
+        <div class="modal-contents">
+        <span class="close-button">&times;</span>
+        <h2>Notice</h2>
+        <p>You need to login or have an active subscription to access this feature.</p>
+        <button id="alert-ok-btn">OK</button>
+        </div>
+    </div>
 
     <script>
         const chatbotTogglers = document.querySelectorAll('.chatbot-toggler');
     
+     //custom alert form
+     function showCustomAlert() {
+        const modal = document.getElementById('customAlert');
+        const closeButton = document.querySelector('.close-button');
+        const okButton = document.getElementById('alert-ok-btn');
+        // Show the modal
+        modal.style.display = 'block';
+        // Close the modal on 'X' button click
+        closeButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+        // Close the modal on 'OK' button click
+        okButton.onclick = () => {
+            modal.style.display = 'none';
+        };
+        // Close the modal if user clicks outside the modal content
+        window.onclick = (event) => {
+            if (event.target === modal) {
+            modal.style.display = 'none';
+            }
+        };
+        }
+
         chatbotTogglers.forEach(chatbotToggler => {
           chatbotToggler.addEventListener('click', async (event) => {
             const isSubscribed = chatbotToggler.getAttribute('data-is-subscribed');
     
             if (isSubscribed == 0) {
-              alert("You need to login or have an active subscription to access this feature.");
+              showCustomAlert("You need to login or have an active subscription to access this feature.");
               return;
             }
     
