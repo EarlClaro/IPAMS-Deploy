@@ -6,24 +6,42 @@
         <div class="col-12">
             <h5 class="header-label">Title and Abstract</h5>
         </div>
+
     </div>
 <hr>
 <div class="row mt-2">
 	<div class="col-12 ">
 		<div class="titleInput">{{ record_form.title|as_crispy_field }}</div>
+        <small>
+            Provide the title of your thesis, research, or project. Make it concise but descriptive.
+        </small>
 	</div>
 </div>
+<br>
 <div class="row">
 	<div class="col">
 		<div class="yStartedInput">{{ record_form.year_accomplished|as_crispy_field }}</div>
+        <small>
+            Select the year when the project or research was initiated.
+        </small>
 	</div>
+
 	<div class="col">
 		<div class="yCompletedInput">{{ record_form.year_completed|as_crispy_field }}</div>
+        <small>
+            Select the year when the project or research was completed. Pick not yet completed if still ongoing.
+        </small>
 	</div>
 </div>
+<br>
 <div class="row">
 	<div class="col-12">
+ 
 		<div id="abstract-field">{{ record_form.abstract|as_crispy_field|safe }}</div>
+ 
+        <small>
+            Provide a summary of your work, including the objective, methodology, and findings. Keep it under 300 words.
+        </small>
 	</div>
 
 </div>
@@ -32,10 +50,14 @@
         <button class="btn nextButtonByRecordListener base-btn base-bg-secondary" type="button">
             Next
             <style>
-                
-                .nextButtonByRecordListener:hover {
+                .nextButtonByRecordListener{
                     background-color: maroon; 
                     color: white; 
+                    
+                }
+                .nextButtonByRecordListener:hover {
+                    background-color: maroon; 
+                    color: gold; 
                     
                 }
             </style>

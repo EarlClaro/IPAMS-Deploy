@@ -180,8 +180,8 @@
                                     {{ login_form|crispy }}
                                 </div>
                                 <div class="login-btn-group mt-3">
-                                    <button type="submit" class="btn base-btn base-bg-secondary ml-2">Sign In</button>
-                                    <a href="{% url 'accounts-signup' %}"><button type="button" class="btn base-btn base-bg-secondary ml-2">Signup</button></a>
+                                    <button type="submit" class="btn base-btn base-bg-secondary ml-2" style="color: white;">Sign In</button>
+                                    <a href="{% url 'accounts-signup' %}"><button type="button" class="btn base-btn base-bg-secondary ml-2" style="color: white;">Signup</button></a>
                                 </div>
                             </div>
                             {% if login_required %}
@@ -197,8 +197,9 @@
                 {% else %}
 
                 <!-- Nav Icons -->
+
                 {% if user.role.id > 1 %}
-                    <a class='nav-icon-item mr-4 ' href="{% url 'records-index' %}"><img src="{% static 'icons/home.png' %}" alt="" width="27" height="27" style="margin-top: 2px;"></a>
+                <a class="nav-icon-item mr-4" href="{% url 'accounts-manual' %}"><i class="fa fa-question"></i> Help</a>
                 {% endif %}
                 {% if user.role.id == 1 or user.role.id == 2 %}
                     <a class='nav-icon-item mt-1' href="{% url 'notifications:student_notifications' %}"><i class="nav-icon fa fa-bell fa-lg " aria-hidden="true" width="27" height="27"></i><span> {{ notif_count }} </span></a>
@@ -217,7 +218,10 @@
                 {% endif %}
                 {% if user.role.id == 7 %}
                     <a class='nav-icon-item mt-1' href="{% url 'notifications:tbi_notifications' %}"><i class="nav-icon fa fa-bell fa-lg " aria-hidden="true" width="27" height="27"></i><span> {{ notif_count }} </span></a>
+                
                 {% endif %}
+                
+                
 
                
                 <!-- Menu  -->

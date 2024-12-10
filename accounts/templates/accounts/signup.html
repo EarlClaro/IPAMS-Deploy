@@ -3,6 +3,7 @@
 
 {% block footer %}
 <style>
+
 </style>
 <script>
     $(document).ready(function() {
@@ -131,6 +132,19 @@
         $("#btn-submit-signUp").hide();
     });
     
+    // Password toggle
+    $(document).on('click', '.toggle-password', function () {
+        const input = $(this).siblings('input');
+        const icon = $(this).find('i');
+        if (input.attr('type') === 'password') {
+            input.attr('type', 'text');
+            icon.removeClass('fa-eye').addClass('fa-eye-slash');
+        } else {
+            input.attr('type', 'password');
+            icon.removeClass('fa-eye-slash').addClass('fa-eye');
+        }
+    });
+    
 </script>
 {% endblock %}
 
@@ -200,42 +214,61 @@
                         </div>
                     </div>
                 </div>
-
+                <!-- SignUp Details -->
                 <div class="row" style="margin-top: 20px">
                     <div class="col-12">
+                        <small class="form-text text-muted">Enter your first name. (Required)</small>
                         {{ form.first_name|as_crispy_field }}
                     </div>
                 </div>
                 <div class="row" style="margin-top: 20px">
                     <div class="col-12">
+                        <small class="form-text text-muted">Enter your middle name. (Optional)</small>
                         {{ form.middle_name|as_crispy_field }}
                     </div>
                 </div>
                 <div class="row" style="margin-top: 20px">
                     <div class="col-12">
+                        <small class="form-text text-muted">Enter your last name. (Required)</small>
                         {{ form.last_name|as_crispy_field }}
                     </div>
                 </div>
                 <div class="row" style="margin-top: 20px">
                     <div class="col-12">
+                        <small class="form-text text-muted">Choose a unique username. (Required)</small>
                         {{ form.username|as_crispy_field }}
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
+                        <small class="form-text text-muted">Provide a valid email address. (Required)</small>
                         {{ form.email|as_crispy_field }}
                     </div>
                 </div>
+
+                <br>
+                <!-- password -->
+
                 <div class="row">
                     <div class="col-12">
                         {{ form.password|as_crispy_field }}
+                        <small class="form-text text-muted">Password should have 8 Characters or more. (Required)</small>
+
+                        
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-12">
                         {{ form.password2|as_crispy_field }}
+                        <small class="form-text text-muted">Re-enter your password to confirm. (Required)</small>
+
+                        
                     </div>
                 </div>
+                
+                <br>
+                <br>
+
                 <div class="row">
                     <div class="col-12" style="text-indent: 50px; text-align: justify;">
                         By accomplishing this form, I agree that the information submitted shall be used solely for purposes of monitoring and planning. CIT-U may likewise disclose my personal information to the extent that CIT-U will be required to do so by the Data Privacy Act of 2012. As a general rule, CIT-U may only keep my information until such time that it has attained the purpose by which it collects them. Under the foregoing circumstances and to the extent permissible by applicable law, I agree not to take any action against CIT-U for the disclosure and retention of my information. I am aware that pursuant to its duties and obligations under the Data Privacy Act of 2012, CIT-U will protect and treat all my personal and sensitive information that it collects, records, processes, and stores in connection to the submission as confidential. Further, I am fully aware that CIT-U may disclose such information to concerned authorities and institutions to comply with the requirements of public order and safety. In this regard, by clicking the "I UNDERSTAND AND ACCEPT THE TERMS" button below, I hereby allow CIT-U to collect, process, use, share and retain my personal information.
@@ -256,8 +289,8 @@
                 <div id="loadIndicator"></div>
                 <div class="row">
                     <div class="col-12 d-flex">
-                        <button class="btn base-btn base-bg-secondary" type="submit" id="btn-submit-signUp" style="margin-right: 10px;" disabled>Sign Up</button>
-                        <a href="{% url 'records-index' %}" class="btn base-btn base-bg-secondary">Back</a>
+                        <button class="btn base-btn base-bg-secondary" type="submit" id="btn-submit-signUp" style="margin-right: 10px; color: white;" disabled>Sign Up</button>
+                        <a href="{% url 'records-index' %}" class="btn base-btn base-bg-secondary" style="color: white;">Back</a>
                         
                     </div>
                 </div>

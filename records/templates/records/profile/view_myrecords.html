@@ -193,18 +193,18 @@ $("#uploads-title").hide();
             <div class="text-primary text-bold h2">My Record</div>
         </div>
         <div class="col-8">
-            <div class="mr-2 mt-2 float-right">
-                <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only edit if status is set to removable"><a href="{% url 'records-edit' record_id=record.pk %}" id="btn-edit" style="color: black"><button class="btn base-btn base-bg-secondary" {% if not adviser_status.status == 'Declined' and not ktto_status.status == 'Declined' and not rdco_status.status == 'Declined' %} disabled {% endif %}><i class="fa fa-pen fa-md" ></i> Edit</button></a></div>
-                <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only remove if status is set to removable"><button class="btn base-btn base-bg-secondary" href="#" id="btn-remove" {% if not adviser_status.status == 'Declined' and not ktto_status.status == 'Declined' and not rdco_status.status == 'Declined' %} disabled {% endif %}><i class="fa fa-trash fa-md"></i> Remove</button></div>
-                <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only resubmit if status is set to removable"><button class="btn base-btn base-bg-secondary" href="#" id="btn-resubmit" {% if not adviser_status.status == 'Declined' and not ktto_status.status == 'Declined' and not rdco_status.status == 'Declined' %} disabled {% endif %}><i class="fas fa-redo-alt fa-flip-vertical"></i> Resubmit</button></div>
+            <div class="mr-2 mt-2 float-right" style="color: white;">
+                <div class="tooltip-wrapper"style="color: white;"  data-toggle="tooltip" title="Users can only edit if status is set to removable"><a href="{% url 'records-edit' record_id=record.pk %}" id="btn-edit" style="color: white"><button class="btn base-btn base-bg-secondary" {% if not adviser_status.status == 'Declined' and not ktto_status.status == 'Declined' and not rdco_status.status == 'Declined' %} disabled {% endif %} style="color: white;"><i class="fa fa-pen fa-md" ></i> Edit</button></a></div>
+                <div class="tooltip-wrapper" style="color: white;" data-toggle="tooltip" title="Users can only remove if status is set to removable"><button class="btn base-btn base-bg-secondary" href="#" id="btn-remove" {% if not adviser_status.status == 'Declined' and not ktto_status.status == 'Declined' and not rdco_status.status == 'Declined' %} disabled {% endif %} style="color: white;"><i class="fa fa-trash fa-md" style="color: white;"></i> Remove</button></div>
+                <div class="tooltip-wrapper" style="color: white;" data-toggle="tooltip" title="Users can only resubmit if status is set to removable"><button class="btn base-btn base-bg-secondary" href="#" id="btn-resubmit" {% if not adviser_status.status == 'Declined' and not ktto_status.status == 'Declined' and not rdco_status.status == 'Declined' %} disabled {% endif %} style="color: white;"><i class="fas fa-redo-alt fa-flip-vertical" style="color: white;"></i> Resubmit</button></div>
                 {% if research_record.research is none and record.record_type.name == 'Proposal' %}
-                <div class="tooltip-wrapper" data-toggle="tooltip" title="Users can only add thesis/research paper if proposal has been published"><a href="{% url 'records-add-research' research_record_id=research_record.pk %}"><button class="btn base-btn base-bg-secondary" {% if not rdco_status.status == 'Approved' %} disabled {% endif %}><i class="fas fa-plus"></i> Add Research</button></a></div>
+                <div class="tooltip-wrapper" style="color: white;" data-toggle="tooltip" title="Users can only add thesis/research paper if proposal has been published"><a href="{% url 'records-add-research' research_record_id=research_record.pk %}"><button class="btn base-btn base-bg-secondary" {% if not rdco_status.status == 'Approved' %} disabled {% endif %} style="color: white;"><i class="fas fa-plus" style="color: white;"></i> Add Research</button></a></div>
                 {% elif research_record.research is not none and record.record_type.name == 'Proposal' %}
-                <a href="{% url 'records-myrecords-view' record_id=research_record.research.pk %}"><button class="btn base-btn base-bg-secondary">Go to Research</button></a>
+                <a href="{% url 'records-myrecords-view' record_id=research_record.research.pk %}"><button class="btn base-btn base-bg-secondary" style="color: white;">Go to Research</button></a>
                 {% elif research_record.research is not none and record.record_type.name == 'Thesis/Research' %}
-                <a {% if research_record.proposal is not none %} href="{% url 'records-myrecords-view' record_id=research_record.proposal.pk %}" {% endif %}><button class="btn base-btn base-bg-secondary">Go to Proposal</button></a>
+                <a {% if research_record.proposal is not none %} href="{% url 'records-myrecords-view' record_id=research_record.proposal.pk %}" {% endif %}><button class="btn base-btn base-bg-secondary" style="color: white;">Go to Proposal</button></a>
                 {% endif %}
-                <a href="{% url 'file_management:attachments' record_id=record.pk %}" target="blank"><button type="button" class="btn base-btn base-bg-secondary"><i class="fas fa-paperclip"></i>Attachments</button></a>
+                <a href="{% url 'file_management:attachments' record_id=record.pk %}" target="blank"><button type="button" class="btn base-btn base-bg-secondary" style="color: white;"><i class="fas fa-paperclip"></i>Attachments</button></a>
             </div>
         </div>
     </div>
@@ -341,7 +341,7 @@ $("#uploads-title").hide();
                         {% elif adviser_status.status == 'Declined' %}  
                             <td style="vertical-align:middle;"><span class="badge badge-danger">{{ adviser_status.status }}</span></td>
                         {% endif %}    
-                        <td><button type="button" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('adviser');">View Comment</button></td>
+                        <td><button type="button" style="color: white;" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('adviser');">View Comment</button></td>
                     </tr>
                     <tr>
                         <td style="vertical-align:middle;">KTTO / TBI</td>
@@ -352,7 +352,7 @@ $("#uploads-title").hide();
                         {% elif ktto_status.status == 'Declined' %}  
                             <td style="vertical-align:middle;"><span class="badge badge-danger">{{ ktto_status.status }}</span></td>
                         {% endif %} 
-                        <td><button type="button" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('ktto');">View Comment</button></td>
+                        <td><button type="button" style="color: white;" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('ktto');">View Comment</button></td>
                     </tr>
                     <tr>
                         <td style="vertical-align:middle;">RDCO</td>
@@ -363,7 +363,7 @@ $("#uploads-title").hide();
                         {% elif rdco_status.status == 'Declined' %}  
                             <td style="vertical-align:middle;"><span class="badge badge-danger">{{ rdco_status.status }}</span></td>
                         {% endif %}
-                        <td><button type="button" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('rdco');">View Comment</button></td>
+                        <td><button type="button" style="color: white;" class="btn base-btn base-bg-secondary" onclick="checkStatusClick('rdco');">View Comment</button></td>
                     </tr>
                 </table>
             </div>

@@ -3,6 +3,9 @@
 <div class="row">
 	<div class="col-12">
 		<h5 class="label">Authors and Categories</h5>
+        <small>
+            Provide the full name of the author (e.g., John Doe).
+        </small>
 	</div>
 </div>
 <hr>
@@ -23,17 +26,32 @@
 </div>
 <div class="row my-2">
     <div class="col-12">
-        <button class="btn base-bg-secondary" type="button" id="add-author-btn">Add Author</button>
+        <button class="btn base-bg-secondary" style="color: white;" type="button" id="add-author-btn">Add Author</button>
     </div>
 </div>
+<small>
+    - <b>Researcher:</b> Primarily responsible for conducting the research.<br>
+    - <b>Advisor:</b> Guides and supervises the research process.<br>
+    - <b>Presenter:</b> Presents the research at events or conferences.<br>
+    - <b>Point Person:</b> Main contact person for communication or coordination.
+</small>
+<br>
+<br>
 <div class="row">
     <div class="col-12">
         {{ record_form.classification|as_crispy_field }}
+        <small >
+            Choose the classification for this record (e.g., Applied, Basic).
+        </small>
     </div>
 </div>
+<br>
 <div class="row">
     <div class="col-12">
         {{ record_form.psced_classification|as_crispy_field }}
+        <small >
+            PSCED (Philippine Standard Classification of Education) categorizes educational fields (e.g., Mathematics, IT Related Disciplines, Other).
+        </small>
     </div>
 </div>
 <div id="projectForm">
@@ -95,7 +113,7 @@
     </div>
     <div class="row" style="margin-top: 20px;margin-bottom:20px;">
         <div class="col-12">
-            <button class="btn base-bg-secondary" type="button" id="add-budget-btn">Add Budget</button>
+            <button class="btn base-bg-secondary" type="button" id="add-budget-btn" style="color: white;">Add Budget</button>
         </div>
     </div>
     <!--Collaboration-->
@@ -113,7 +131,7 @@
 
     <div class="row" style="margin-top: 20px;margin-bottom:20px;">
         <div class="col-12">
-            <button class="btn base-bg-secondary" type="button" id="add-collaboration-btn">Add Collaboration</button>
+            <button class="btn base-bg-secondary" type="button" id="add-collaboration-btn" style="color: white;">Add Collaboration</button>
         </div>
     </div>
     <!-- Conference -->
@@ -129,11 +147,11 @@
 
     <div class="row" style="margin-top: 20px;margin-bottom:20px;">
         <div class="col-12">
-            <button class="btn base-bg-secondary " type="button" id="add-conference-btn">Add conference</button>
+            <button class="btn base-bg-secondary " type="button" id="add-conference-btn" style="color: white;">Add conference</button>
         </div>
     </div>
 </div>
 <div class="col-12 d-flex justify-content-end" style="margin-top: 100px">
-	<button class="btn prevButtonListener base-btn base-bg-secondary" type="button">Prev</button>
-	<button class="btn nextButtonListener base-btn base-bg-secondary" type="button" style="margin-left:10px;">Next</button>
+	<button class="btn prevButtonListener base-btn base-bg-secondary" type="button" style="color: white;">Prev</button>
+	<button class="btn nextButtonListener base-btn base-bg-secondary" type="button" style="margin-left:10px; color: white;">Next</button>
 </div>

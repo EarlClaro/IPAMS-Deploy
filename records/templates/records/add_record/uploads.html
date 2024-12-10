@@ -9,12 +9,15 @@
 	<div class="row ml-2">
 		<div class="col-12">
 			{{ record_form.abstract_file|as_crispy_field }}
+			<small >
+                Upload your proposal/researchpaper file for your record. Preferred format: <b>PDF</b>. Ensure the file is under 5MB.
+            </small>
 		</div>
 	</div>
 </div>
 <div class="row mt-5">
 	<div class="col-12 d-flex justify-content-end">
-		<button class="btn prevButtonListener base-btn base-bg-secondary" type="button">Prev</button>
-		<button data-toggle="modal" data-target="#record-submit-modal" type="button" class="btn base-btn base-bg-secondary" id="btn-confirm" style="margin-left:10px;">Confirm</button>
+		<button class="btn prevButtonListener base-btn base-bg-secondary" type="button" style="color: white;">Prev</button>
+		<button data-toggle="modal" data-target="#record-submit-modal" type="button" class="btn base-btn base-bg-secondary" id="btn-confirm" style="margin-left:10px; color: white;">Confirm</button>
 	</div>
 </div>
