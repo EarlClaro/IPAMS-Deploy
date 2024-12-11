@@ -19,4 +19,8 @@ urlpatterns = [
     path('activate/<uidb64>/<token>/',views.activate, name='activate'),
     path('get/all/locked', views.get_all_locked_accounts, name="all-locked-accounts"),
     
+    path('check-username/', views.check_username_availability, name='check-username'),
+    path('check-email/', views.check_email_availability, name='check-email'),
+    path('check-student-id/', views.check_student_id_availability, name='check-student-id'),
+
 ]

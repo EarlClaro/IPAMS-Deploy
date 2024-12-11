@@ -84,25 +84,29 @@
         }
 
         // Event handlers for role-based field visibility and requirement settings
-        $("#role1").on("click", function(){
+        $(document).ready(function () {
+        // Handle role selection
+        $("#role1").on("click", function () {
             $("#courses, #colleges, #departments, #studentId").hide();
-            $("#student_id").prop('required', false);
-            updateRequiredFields();
+            $("#student_id").prop("required", false);
         });
 
-        $("#role2").on("click", function(){
+        $("#role2").on("click", function () {
             $("#courses, #studentId").show();
             $("#colleges, #departments").hide();
-            $("#student_id").prop('required', true);
-            updateRequiredFields();
+            $("#student_id").prop("required", true);
         });
 
-        $("#role3").on("click", function(){
+        $("#role3").on("click", function () {
             $("#courses, #studentId").hide();
             $("#colleges, #departments").show();
-            $("#student_id").prop('required', false);
-            updateRequiredFields();
+            $("#student_id").prop("required", false);
         });
+
+        // Trigger click event on page load
+        $("input[name='role']:checked").trigger("click");
+    });
+
 
         // Validate input fields on change
         $('form').on('change keyup', 'input, select', function() {
@@ -132,19 +136,49 @@
         $("#btn-submit-signUp").hide();
     });
     
-    // Password toggle
-    $(document).on('click', '.toggle-password', function () {
-        const input = $(this).siblings('input');
-        const icon = $(this).find('i');
-        if (input.attr('type') === 'password') {
-            input.attr('type', 'text');
-            icon.removeClass('fa-eye').addClass('fa-eye-slash');
-        } else {
-            input.attr('type', 'password');
-            icon.removeClass('fa-eye-slash').addClass('fa-eye');
-        }
-    });
     
+   // Input validation
+   function validateInput(fieldName, url, errorElementId) {
+        $(`input[name='${fieldName}']`).on("input", function () {
+            const value = $(this).val();
+            const errorElement = $(`#${errorElementId}`);
+            const submitButton = $("#btn-submit-signUp");
+
+            if (value.length > 0) {
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        [fieldName]: value,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                    },
+                    success: function (response) {
+                        if (!response.available) {
+                            errorElement.text(`This ${fieldName.replace("_", " ")} is already taken.`);
+                            errorElement.show();
+                            submitButton.prop("disabled", true);
+                        } else {
+                            errorElement.hide();
+                            submitButton.prop("disabled", false);
+                        }
+                    },
+                    error: function () {
+                        errorElement.text(`An error occurred while checking the ${fieldName.replace("_", " ")}.`);
+                        errorElement.show();
+                        submitButton.prop("disabled", true);
+                    },
+                });
+            } else {
+                errorElement.hide();
+                submitButton.prop("disabled", true);
+            }
+        });
+    }
+
+    validateInput("username", "{% url 'check-username' %}", "username-error");
+    validateInput("email", "{% url 'check-email' %}", "email-error");
+    validateInput("student_id", "{% url 'check-student-id' %}", "student-id-error");
+
 </script>
 {% endblock %}
 
@@ -194,7 +228,8 @@
                     <div class="col-12">
                         <div id="studentId" style="display:none; margin-top: 20px;" >
                             <label>Student ID</label>
-                            <input type="text" class="form-control" id="student_id" name="student_id" placeholder="Enter your Student ID">
+                            <input type="text" name="student_id" class="form-control" placeholder="Enter your Student ID">
+                            <small id="student-id-error" class="form-text text-danger" style="display: none;">This Student ID is already in use.</small>
                         </div>
                     </div>
                 </div>
@@ -233,18 +268,26 @@
                         {{ form.last_name|as_crispy_field }}
                     </div>
                 </div>
+                <!-- Input Username -->
                 <div class="row" style="margin-top: 20px">
                     <div class="col-12">
                         <small class="form-text text-muted">Choose a unique username. (Required)</small>
-                        {{ form.username|as_crispy_field }}
+                        <input type="text" name="username" class="form-control" placeholder="Enter a username">
+                        <small id="username-error" class="form-text text-danger" style="display: none;">This username is already taken.</small>
                     </div>
                 </div>
-                <div class="row">
+                <br>                
+                
+                
+                <!-- Input Email -->
+                <div class="row" style="margin-top: 20px">
                     <div class="col-12">
                         <small class="form-text text-muted">Provide a valid email address. (Required)</small>
-                        {{ form.email|as_crispy_field }}
+                        <input type="email" name="email" class="form-control" placeholder="Enter your email">
+                        <small id="email-error" class="form-text text-danger" style="display: none;">This email is already registered.</small>
                     </div>
                 </div>
+                
 
                 <br>
                 <!-- password -->

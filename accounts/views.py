@@ -447,3 +447,35 @@ def get_all_locked_accounts(request):
             ])
         return JsonResponse({'data': data})
     
+
+User = get_user_model()  # Use the custom User model
+
+def check_username_availability(request):
+    if request.method == 'POST' and request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':  # Check for AJAX
+        username = request.POST.get('username', '').strip()
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({'available': False})  # Username is taken
+        return JsonResponse({'available': True})  # Username is available
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+User = get_user_model()
+
+def check_email_availability(request):
+    if request.method == 'POST' and request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        email = request.POST.get('email', '').strip()
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({'available': False})  # Email is already registered
+        return JsonResponse({'available': True})  # Email is available
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+def check_student_id_availability(request):
+    if request.method == 'POST' and request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
+        student_id = request.POST.get('student_id', '').strip()
+        if Student.objects.filter(student_id=student_id).exists():
+            return JsonResponse({'available': False})  # Student ID is already registered
+        return JsonResponse({'available': True})  # Student ID is available
+    return JsonResponse({'error': 'Invalid request'}, status=400)
