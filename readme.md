@@ -10,8 +10,8 @@ intellectual properties which are an essential part to the institution.
 - Deployment History:
 - Digital Ocean, Azure Cloud (December 19)
 
-![image](https://user-images.githubusercontent.com/53965169/200242362-33b96d3d-b750-4ea7-
-b7a9-6a7e3886a91b.png)
+![image](https://github.com/user-attachments/assets/8705f429-3ddd-41a6-b92e-fe5851006cf2)
+
 
 **Dependencies**
 
@@ -29,8 +29,8 @@ b7a9-6a7e3886a91b.png)
 # **Design and Architecture**
 **MVT Architecture**
 
-![MVT Architecture drawio](https://user-images.githubusercontent.com/53965169/200243046-
-0a598498-8e70-4c4e-b598-3065ad011598.png)
+![image](https://github.com/user-attachments/assets/96d4569a-b3f5-48f7-90b3-8f3c902742c7)
+
 
 - Django MVT Structure (Model-View-Template)The image above shows the MVT Structure. In the
 client side, the client can access templates through IPAMS' user inputs to be received in the views
